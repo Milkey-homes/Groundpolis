@@ -29,6 +29,7 @@ import { extractApMentions } from './mention';
 import DbResolver from '../db-resolver';
 import { extractCustomEmojisFromMfm } from '../../../misc/extract-custom-emojis-from-mfm';
 import { parse } from 'mfm-js';
+import { StatusError } from '../../../misc/fetch';
 
 const logger = apLogger;
 
@@ -180,7 +181,7 @@ export async function createNote(value: string | IObject, resolver?: Resolver, s
 				}
 			} catch (e) {
 				return {
-					status: e.statusCode >= 400 && e.statusCode < 500 ? 'permerror' : 'temperror'
+					status: (e instanceof StatusError && e.isClientError) ? 'permerror' : 'temperror'
 				};
 			}
 		};
