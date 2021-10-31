@@ -306,6 +306,10 @@ export async function resolveNote(value: string | IObject, resolver?: Resolver):
 		}
 		//#endregion
 
+		if (uri.startsWith(config.url)) {
+			throw { statusCode: 400 };
+		}
+
 		// リモートサーバーからフェッチしてきて登録
 		// ここでuriの代わりに添付されてきたNote Objectが指定されていると、サーバーフェッチを経ずにノートが生成されるが
 		// 添付されてきたNote Objectは偽装されている可能性があるため、常にuriを指定してサーバーフェッチを行う。
