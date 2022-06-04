@@ -4,8 +4,17 @@ import { ILocalUser } from '../../models/entities/user';
 import { getInstanceActor } from '../../services/instance-actor';
 import { apGet } from './request';
 import { IObject, isCollectionOrOrderedCollection, ICollection, IOrderedCollection } from './type';
+import { FollowRequests, Notes, NoteReactions, Polls, Users } from '../../models';
+import { parseUri } from './db-resolver';
 import { fetchMeta } from '../../misc/fetch-meta';
-import { extractDbHost } from '../../misc/convert-host';
+import { extractDbHost, isSelfHost } from '../../misc/convert-host';
+import renderNote from './renderer/note';
+import { renderLike } from './renderer/like';
+import { renderPerson } from './renderer/person';
+import renderQuestion from './renderer/question';
+import renderCreate from './renderer/create';
+import { renderActivity } from './renderer/index';
+import renderFollow from './renderer/follow';
 
 export default class Resolver {
 	private history: Set<string>;
@@ -42,6 +51,13 @@ export default class Resolver {
 			return value;
 		}
 
+		if (value.includes('#')) {
+			// URLs with fragment parts cannot be resolved correctly because
+			// the fragment part does not get transmitted over HTTP(S).
+			// Avoid strange behaviour by not trying to resolve these at all.
+			throw new Error(`cannot resolve URL with fragment: ${value}`);
+		}
+
 		if (this.history.has(value)) {
 			throw new Error('cannot resolve already resolved one');
 		}
@@ -52,8 +68,12 @@ export default class Resolver {
 
 		this.history.add(value);
 
-		const meta = await fetchMeta();
 		const host = extractDbHost(value);
+		if (isSelfHost(host)) {
+			return await this.resolveLocal(value);
+		}
+
+		const meta = await fetchMeta();
 		if (meta.blockedHosts.includes(host)) {
 			throw new Error('Instance is blocked');
 		}
@@ -73,5 +93,45 @@ export default class Resolver {
 		}
 
 		return object;
+	}
+
+	private resolveLocal(url: string): Promise<IObject> {
+		const parsed = parseUri(url);
+		if (!parsed.local) throw new Error('resolveLocal: not local');
+
+		switch (parsed.type) {
+			case 'notes':
+				return Notes.findOneOrFail({ id: parsed.id })
+				.then(note => {
+					if (parsed.rest === 'activity') {
+						// this refers to the create activity and not the note itself
+						return renderActivity(renderCreate(renderNote(note)));
+					} else {
+						return renderNote(note);
+					}
+				});
+			case 'users':
+				return Users.findOneOrFail({ id: parsed.id })
+				.then(user => renderPerson(user as ILocalUser));
+			case 'questions':
+				// Polls are indexed by the note they are attached to.
+				return Promise.all([
+					Notes.findOneOrFail({ id: parsed.id }),
+					Polls.findOneOrFail({ noteId: parsed.id }),
+				])
+				.then(([note, poll]) => renderQuestion({ id: note.userId }, note, poll));
+			case 'likes':
+				return NoteReactions.findOneOrFail({ id: parsed.id }).then(reaction => renderActivity(renderLike(reaction, { uri: null })));
+			case 'follows':
+				// rest should be <followee id>
+				if (parsed.rest == null || !/^\w+$/.test(parsed.rest)) throw new Error('resolveLocal: invalid follow URI');
+
+				return Promise.all(
+					[parsed.id, parsed.rest].map(id => Users.findOneOrFail({ id }))
+				)
+				.then(([follower, followee]) => renderActivity(renderFollow(follower, followee, url)));
+			default:
+				throw new Error(`resolveLocal: type ${type} unhandled`);
+		}
 	}
 }
