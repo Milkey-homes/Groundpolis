@@ -12,12 +12,14 @@ export async function readNotification(
 	notificationIds: Notification['id'][]
 ) {
 	// Update documents
-	await Notifications.update({
+	const readResult = await Notifications.update({
 		id: In(notificationIds),
 		isRead: false
 	}, {
 		isRead: true
 	});
+
+	if (typeof readResult.affected === 'number' && readResult.affected === 0) return;	// ※ PG driver なら必ず値が取得できる
 
 	if (!await Users.getHasUnreadNotification(userId)) {
 		// 全ての(いままで未読だった)通知を(これで)読みましたよというイベントを発行
