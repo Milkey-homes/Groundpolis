@@ -10,7 +10,8 @@
 			<MkUserName class="name" v-if="$store.reactiveState.noteNameDisplayMode.value !== 3" :user="note.user"/>
 		</template>
 	</MkA>
-	<span class="is-bot" v-if="note.user.isBot">bot</span>
+	<span class="is-bot" v-if="note.user.isBot"><Fa :icon="faRobot"/></span>
+	<span class="is-cat" v-if="note.user.isCat"><Fa :icon="faPaw"/></span>
 	<GpVerified class="verified" v-if="note.user.isVerified" />
 	<span class="premium" v-if="note.user.isPremium"><Fa :icon="faCrown"/></span>
 	<div class="info">
@@ -29,7 +30,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { faHome, faUnlock, faEnvelope, faMobileAlt, faBookmark, faUsers, faHeart, faHeartbeat, faCrown } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faUnlock, faEnvelope, faMobileAlt, faBookmark, faUsers, faHeart, faHeartbeat, faCrown, faRobot, faPaw } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as farBookmark } from '@fortawesome/free-regular-svg-icons';
 import notePage from '../filters/note';
 import { userPage } from '../filters/user';
@@ -54,7 +55,7 @@ export default defineComponent({
 
 	data() {
 		return {
-			faHome, faUnlock, faEnvelope, faMobileAlt, faBookmark, farBookmark, faUsers, faHeart, faHeartbeat, faCrown
+			faHome, faUnlock, faEnvelope, faMobileAlt, faBookmark, farBookmark, faUsers, faHeart, faHeartbeat, faCrown, faRobot, faPaw
 		};
 	},
 
@@ -100,13 +101,11 @@ export default defineComponent({
 	}
 
 	> .is-bot {
-		flex-shrink: 0;
-		align-self: center;
-		margin: 0 .5em 0 0;
-		padding: 1px 6px;
-		font-size: 80%;
-		border: solid 1px var(--divider);
-		border-radius: 3px;
+		margin-right: 0.5em;
+	}
+
+	> .is-cat {
+		margin-right: 0.5em;
 	}
 
 	> .premium {

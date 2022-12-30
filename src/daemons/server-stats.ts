@@ -27,24 +27,26 @@ export default function() {
 		const fsStats = await fs();
 
 		const stats = {
-			cpu: config.hideServerInfo ? -1 : roundCpu(cpu),
+			cpu: roundCpu(cpu),
 			mem: {
-				used: config.hideServerInfo ? -1 : round(memStats.used),
-				active: config.hideServerInfo ? -1 : round(memStats.active),
+				used: round(memStats.used),
+				active: round(memStats.active),
 			},
 			net: {
-				rx: config.hideServerInfo ? -1 : round(Math.max(0, netStats.rx_sec)),
-				tx: config.hideServerInfo ? -1 : round(Math.max(0, netStats.tx_sec)),
+				rx: round(Math.max(0, netStats.rx_sec)),
+				tx: round(Math.max(0, netStats.tx_sec)),
 			},
 			fs: {
-				r: config.hideServerInfo ? -1 : round(Math.max(0, fsStats.rIO_sec)),
-				w: config.hideServerInfo ? -1 : round(Math.max(0, fsStats.wIO_sec)),
+				r: round(Math.max(0, fsStats.rIO_sec)),
+				w: round(Math.max(0, fsStats.wIO_sec)),
 			}
 		};
 		ev.emit('serverStats', stats);
 		log.unshift(stats);
 		if (log.length > 200) log.pop();
 	}
+
+	if (config.hideServerInfo) return;
 
 	tick();
 

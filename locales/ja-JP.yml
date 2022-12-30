@@ -908,6 +908,8 @@ showRenoteConfirm: "リノートする前に確認ダイアログを表示する
 showUnrenoteConfirm: "リノート解除する前に確認ダイアログを表示する"
 showVoteConfirm: "投票する前に確認ダイアログを表示する"
 voteConfirm: "投票しますか？"
+deleteAccount: "アカウント削除"
+deleteAccountConfirm: "本当にこのアカウントを削除しますか？"
 
 _template:
   edit: "定型文を編集…"
@@ -1520,6 +1522,9 @@ _profile:
   metadataContent: "内容"
   changeAvatar: "アバター画像を変更"
   changeBanner: "バナー画像を変更"
+  locationCaution: "インターネットに公開されます。ビジネス用途を除き詳細な住所を記載しないでください"
+  birthdayCaution: "インターネットに公開されます。個人情報は慎重に取り扱ってください"
+  genderCaution: "インターネットに公開されます。個人情報は慎重に取り扱ってください"
 
 _exportOrImport:
   allNotes: "全てのノート"

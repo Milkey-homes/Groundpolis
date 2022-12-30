@@ -39,6 +39,7 @@
 				<MkButton full v-if="user.host != null" @click="updateRemoteUser"><Fa :icon="faSync"/> {{ $ts.updateRemoteUser }}</MkButton>
 				<MkButton full @click="resetPassword"><Fa :icon="faKey"/> {{ $ts.resetPassword }}</MkButton>
 				<MkButton full @click="deleteAllFiles" danger><Fa :icon="faTrashAlt"/> {{ $ts.deleteAllFiles }}</MkButton>
+				<MkButton v-if="!user.isModerator && !user.isAdmin" full @click="deleteAccount" danger><Fa :icon="faTrashAlt"/> {{ $ts.deleteAccount }}</MkButton>
 			</div>
 		</div>
 		<div class="_section">
@@ -204,6 +205,26 @@ export default defineComponent({
 			if (confirm.canceled) return;
 			const process = async () => {
 				await os.api('admin/delete-all-files-of-a-user', { userId: this.user.id });
+				os.success();
+			};
+			await process().catch(e => {
+				os.dialog({
+					type: 'error',
+					text: e.toString()
+				});
+			});
+			await this.refreshUser();
+		},
+
+		async deleteAccount() {
+			const confirm = await os.dialog({
+				type: 'warning',
+				showCancelButton: true,
+				text: this.$ts.deleteAccountConfirm,
+			});
+			if (confirm.canceled) return;
+			const process = async () => {
+				await os.api('admin/delete-account', { userId: this.user.id });
 				os.success();
 			};
 			await process().catch(e => {

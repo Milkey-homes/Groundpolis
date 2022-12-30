@@ -16,10 +16,13 @@
 						<MkUserName class="name" :user="user" :nowrap="true"/>
 						<div class="bottom">
 							<span class="username"><MkAcct :user="user" :detail="true" /></span>
-							<span v-if="user.isAdmin" :title="$ts.isAdmin" style="color: var(--badge);"><Fa :icon="faBookmark"/></span>
-							<span v-if="!user.isAdmin && user.isModerator" :title="$ts.isModerator" style="color: var(--badge);"><Fa :icon="farBookmark"/></span>
 							<span v-if="user.isLocked" :title="$ts.isLocked"><Fa :icon="faLock"/></span>
+							<span v-if="user.isAdmin" :title="$ts.isAdmin" style="color: var(--badge);"><Fa :icon="faWrench"/></span>
+							<span v-if="!user.isAdmin && user.isModerator" :title="$ts.isModerator" style="color: var(--badge);"><Fa :icon="farBookmark"/></span>
 							<span v-if="user.isBot" :title="$ts.isBot"><Fa :icon="faRobot"/></span>
+							<span v-if="user.isCat" :title="$ts.isCat"><Fa :icon="faPaw"/></span>
+							<span v-if="user.isVerified" :title="$ts.isVerified"><Fa :icon="faStar"/></span>
+							<span v-if="user.isPremium" :title="$ts.isPremium" style="color: var(--premium);"><Fa :icon="faCrown"/></span>
 						</div>
 					</div>
 					<span class="followed" v-if="$i && $i.id != user.id && user.isFollowed">{{ $ts.followsYou }}</span>
@@ -37,10 +40,13 @@
 					<MkUserName :user="user" :nowrap="false" class="name"/>
 					<div class="bottom">
 						<span class="username"><MkAcct :user="user" :detail="true" /></span>
-						<span v-if="user.isAdmin" :title="$ts.isAdmin" style="color: var(--badge);"><Fa :icon="faBookmark"/></span>
-						<span v-if="!user.isAdmin && user.isModerator" :title="$ts.isModerator" style="color: var(--badge);"><Fa :icon="farBookmark"/></span>
 						<span v-if="user.isLocked" :title="$ts.isLocked"><Fa :icon="faLock"/></span>
+						<span v-if="user.isAdmin" :title="$ts.isAdmin" style="color: var(--badge);"><Fa :icon="faWrench"/></span>
+						<span v-if="!user.isAdmin && user.isModerator" :title="$ts.isModerator" style="color: var(--badge);"><Fa :icon="farBookmark"/></span>
 						<span v-if="user.isBot" :title="$ts.isBot"><Fa :icon="faRobot"/></span>
+						<span v-if="user.isCat" :title="$ts.isCat"><Fa :icon="faPaw"/></span>
+						<span v-if="user.isVerified" :title="$ts.isVerified"><Fa :icon="faStar"/></span>
+						<span v-if="user.isPremium" :title="$ts.isPremium" style="color: var(--premium);"><Fa :icon="faCrown"/></span>
 					</div>
 				</div>
 				<div class="description">
@@ -137,7 +143,7 @@
 
 <script lang="ts">
 import { defineComponent, defineAsyncComponent, computed } from 'vue';
-import { faExclamationTriangle, faEllipsisH, faRobot, faLock, faBookmark, faChartBar, faImage, faBirthdayCake, faMapMarker, faPaperclip, faFileAlt, faPencilAlt, faMars, faVenus, faGenderless } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faEllipsisH, faRobot, faLock, faBookmark, faChartBar, faImage, faBirthdayCake, faMapMarker, faPaperclip, faFileAlt, faPencilAlt, faMars, faVenus, faGenderless, faWrench, faPaw, faCrown, faStar } from '@fortawesome/free-solid-svg-icons';
 import { faCalendarAlt, faBookmark as farBookmark, faCommentAlt, faSmile } from '@fortawesome/free-regular-svg-icons';
 import * as age from 's-age';
 import XUserTimeline from './index.timeline.vue';
@@ -200,7 +206,7 @@ export default defineComponent({
 			error: null,
 			parallaxAnimationId: null,
 			narrow: null,
-			faExclamationTriangle, faEllipsisH, faRobot, faLock, faBookmark, farBookmark, faChartBar, faImage, faBirthdayCake, faMapMarker, faCalendarAlt, faCommentAlt, faPaperclip, faFileAlt, faSmile,
+			faExclamationTriangle, faEllipsisH, faRobot, faLock, faBookmark, farBookmark, faChartBar, faImage, faBirthdayCake, faMapMarker, faCalendarAlt, faCommentAlt, faPaperclip, faFileAlt, faSmile, faWrench, faPaw, faCrown, faStar
 		};
 	},
 

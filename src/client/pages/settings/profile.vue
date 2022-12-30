@@ -23,11 +23,13 @@
 	<FormInput v-model:value="location">
 		<span>{{ $ts.location }}</span>
 		<template #prefix><Fa :icon="faMapMarkerAlt"/></template>
+		<template #desc>{{ $ts._profile.locationCaution }}</template>
 	</FormInput>
 
 	<FormInput v-model:value="birthday" type="date">
 		<span>{{ $ts.birthday }}</span>
 		<template #prefix><Fa :icon="faBirthdayCake"/></template>
+		<template #desc>{{ $ts._profile.birthdayCaution }}</template>
 	</FormInput>
 
 	<FormSelect v-model:value="gender">
@@ -36,6 +38,7 @@
 		<option value="male" v-text="$ts._gender.male" />
 		<option value="female" v-text="$ts._gender.female" />
 		<option value="not-applicable" v-text="$ts._gender['not-applicable']" />
+		<template #caption>{{ $ts._profile.genderCaution }}</template>
 	</FormSelect>
 
 	<FormGroup>
@@ -100,7 +103,7 @@ export default defineComponent({
 		FormBase,
 		FormGroup,
 	},
-	
+
 	emits: ['info'],
 
 	data() {

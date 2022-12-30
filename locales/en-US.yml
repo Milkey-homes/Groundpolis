@@ -871,6 +871,8 @@ showRenoteConfirm: "Show confirmation dialog before renoting"
 showUnrenoteConfirm: "Show confirmation dialog before unrenoting"
 showVoteConfirm: "Show confirmation dialog before voting"
 voteConfirm: "Are you sure that you want to vote?"
+deleteAccount: "Delete Account"
+deleteAccountConfirm: "Are you sure that you want to delete this account?"
 
 _template:
   edit: "Edit Template..."
@@ -1410,6 +1412,9 @@ _profile:
   metadataContent: "Content"
   changeAvatar: "Change avatar"
   changeBanner: "Change banner"
+  locationCaution: "It will be published on the Internet. Please do not include detailed addresses except for business use"
+  birthdayCaution: "It will be published on the Internet. Please handle your personal information with care"
+  genderCaution: "It will be published on the Internet. Please handle your personal information with care"
 _exportOrImport:
   allNotes: "All notes"
   followingList: "Following"
