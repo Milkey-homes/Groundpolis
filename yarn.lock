@@ -6643,6 +6643,10 @@ media-typer@0.3.0:
   resolved "https://registry.yarnpkg.com/media-typer/-/media-typer-0.3.0.tgz#8710d7af0aa626f8fffa1ce00168545263255748"
   integrity sha1-hxDXrwqmJvj/+hzgAWhUUmMlV0g=
 
+memoji@mei23/memoji#15.0.0:
+  version "15.0.0"
+  resolved "https://codeload.github.com/mei23/memoji/tar.gz/5ebfbda27b2bf38f99cb562ee3cece7d13c55154"
+
 memorystream@^0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/memorystream/-/memorystream-0.3.1.tgz#86d7090b30ce455d63fbae12dda51a47ddcaf9b2"
@@ -10326,10 +10330,14 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
   integrity sha1-WuaBd/GS1EViadEIr6k/+HQ/T2Q=
 
-twemoji-parser@14.0.0, twemoji-parser@14.0.x:
+twemoji-parser@14.0.x:
   version "14.0.0"
   resolved "https://registry.yarnpkg.com/twemoji-parser/-/twemoji-parser-14.0.0.tgz#13dabcb6d3a261d9efbf58a1666b182033bf2b62"
   integrity sha512-9DUOTGLOWs0pFWnh1p6NF+C3CkQ96PWmEFwhOVmT3WbecRC+68AIqpsnJXygfkFcp4aXbOp8Dwbhh/HQgvoRxA==
+
+"twemoji-parser@git+https://github.com/mei23/twemoji-parser.git#15.0.1":
+  version "15.0.1"
+  resolved "git+https://github.com/mei23/twemoji-parser.git#d374b2f54efaf3ecf21948daecf851b69c9a7d62"
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"

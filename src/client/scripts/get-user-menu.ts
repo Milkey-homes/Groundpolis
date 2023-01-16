@@ -204,7 +204,11 @@ export function getUserMenu(user) {
 				icon: faMicrophoneSlash,
 				text: user.isSilenced ? i18n.locale.unsilence : i18n.locale.silence,
 				action: toggleSilence
-			}, {
+			}]);
+		}
+
+		if ($i && ($i.isAdmin || $i.isModerator) && ((!user.isAdmin && !user.isModerator) || ((user.isAdmin || user.isModerator) && user.isSuspended))) {
+			menu = menu.concat([{
 				icon: faSnowflake,
 				text: user.isSuspended ? i18n.locale.unsuspend : i18n.locale.suspend,
 				action: toggleSuspend

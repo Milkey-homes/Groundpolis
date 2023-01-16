@@ -63,7 +63,7 @@
 					<MkEllipsis v-if="loadingAccounts" class="item" />
 					<div class="divider" v-if="accounts.length > 0"></div>
 					<button class="item _button" @click="addAcount" v-text="$ts.addAcount"/>
-					<button class="item _button" @click="createAccount" v-text="$ts.createAccount"/>
+					<button class="item _button" @click="createAccount" v-if="meta && !(meta.disableRegistration && meta.disableInvitation)" v-text="$ts.createAccount"/>
 					<button class="item danger _button" @click="signout" v-text="$ts.logout"/>
 				</template>
 			</div>
@@ -544,7 +544,7 @@ export default defineComponent({
 				&:first-child, &:last-child {
 					position: sticky;
 					background: var(--bg);
-					z-index: 1;					
+					z-index: 1;
 				}
 
 				&:first-child {

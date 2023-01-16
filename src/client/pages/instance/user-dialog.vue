@@ -30,7 +30,7 @@
 				<MkSwitch @update:value="toggleVerify" v-model:value="verified">{{ $ts.verify }}</MkSwitch>
 				<MkSwitch @update:value="togglePremium" v-model:value="premium">{{ $ts.premium }}</MkSwitch>
 				<MkSwitch @update:value="toggleSilence" v-model:value="silenced">{{ $ts.silence }}</MkSwitch>
-				<MkSwitch @update:value="toggleSuspend" v-model:value="suspended">{{ $ts.suspend }}</MkSwitch>
+				<MkSwitch @update:value="toggleSuspend" v-model:value="suspended" :disabled="(user.isModerator || user.isAdmin) && !user.isSuspended">{{ $ts.suspend }}</MkSwitch>
 			</div>
 		</div>
 		<div class="_section">
@@ -39,7 +39,7 @@
 				<MkButton full v-if="user.host != null" @click="updateRemoteUser"><Fa :icon="faSync"/> {{ $ts.updateRemoteUser }}</MkButton>
 				<MkButton full @click="resetPassword"><Fa :icon="faKey"/> {{ $ts.resetPassword }}</MkButton>
 				<MkButton full @click="deleteAllFiles" danger><Fa :icon="faTrashAlt"/> {{ $ts.deleteAllFiles }}</MkButton>
-				<MkButton v-if="!user.isModerator && !user.isAdmin" full @click="deleteAccount" danger><Fa :icon="faTrashAlt"/> {{ $ts.deleteAccount }}</MkButton>
+        <MkButton full @click="deleteAccount" danger :disabled="user.isModerator || user.isAdmin"><Fa :icon="faTrashAlt"/> {{ $ts.deleteAccount }}</MkButton>
 			</div>
 		</div>
 		<div class="_section">
