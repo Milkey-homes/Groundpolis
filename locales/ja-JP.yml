@@ -910,6 +910,8 @@ showVoteConfirm: "投票する前に確認ダイアログを表示する"
 voteConfirm: "投票しますか？"
 deleteAccount: "アカウント削除"
 deleteAccountConfirm: "本当にこのアカウントを削除しますか？"
+inviteRevoke: "全ての招待コードを失効する"
+inviteRevokeConfirm: "本当に全ての招待コードを失効させますか？"
 
 _template:
   edit: "定型文を編集…"

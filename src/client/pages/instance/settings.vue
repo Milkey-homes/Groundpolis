@@ -61,7 +61,8 @@
 					<MkInput v-model:value="disableInvitationReason">{{ $ts.disableInvitationReason }}</MkInput>
 					<MkButton primary @click="save(true)"><fa :icon="faSave"/> {{ $ts.save }}</MkButton>
 				</template>
-				<MkButton v-else @click="invite">{{ $ts.invite }}</MkButton>
+				<MkButton v-if="!enableRegistration && enableInvitation" @click="invite">{{ $ts.invite }}</MkButton>
+				<MkButton v-if="!enableRegistration && enableInvitation" @click="inviteRevoke" danger>{{ $ts.inviteRevoke }}</MkButton>
 			</template>
 		</div>
 	</section>
@@ -497,6 +498,21 @@ export default defineComponent({
 					text: x.code
 				});
 			}).catch(e => {
+				os.dialog({
+					type: 'error',
+					text: e
+				});
+			});
+		},
+
+		inviteRevoke() {
+			os.api('admin/invite-revoke').then(x => {
+				os.dialog({
+				type: 'warning',
+				showCancelButton: true,
+				text: this.$ts.inviteRevokeConfirm,
+				});
+			}).then(({ canceled }) => {
 				os.dialog({
 					type: 'error',
 					text: e

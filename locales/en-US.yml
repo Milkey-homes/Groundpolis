@@ -873,6 +873,8 @@ showVoteConfirm: "Show confirmation dialog before voting"
 voteConfirm: "Are you sure that you want to vote?"
 deleteAccount: "Delete Account"
 deleteAccountConfirm: "Are you sure that you want to delete this account?"
+inviteRevoke: "Revoke All Invitation Codes"
+inviteRevokeConfirm: "Are you sure that you want to revoke all invitation codes?"
 
 _template:
   edit: "Edit Template..."
