@@ -6,6 +6,7 @@ import { ensure } from '../../prelude/ensure';
 import config from '../../config';
 import { SchemaType } from '../../misc/schema';
 import { awaitAll } from '../../prelude/await-all';
+import { sanitizeUrl } from '../../misc/sanitize-url';
 
 export type PackedUser = SchemaType<typeof packedUserSchema>;
 
@@ -190,7 +191,7 @@ export class UserRepository extends Repository<User> {
 			name: user.name,
 			username: user.username,
 			host: user.host,
-			avatarUrl: this.getAvatarUrl(user),
+			avatarUrl: sanitizeUrl(this.getAvatarUrl(user)),
 			avatarBlurhash: user.avatarBlurhash,
 			avatarColor: null, // 後方互換性のため
 			isAdmin: user.isAdmin || falsy,
@@ -213,10 +214,10 @@ export class UserRepository extends Repository<User> {
 			noindex: user.noindex || falsy,
 
 			...(opts.detail ? {
-				url: profile!.url,
+				url: sanitizeUrl(profile!.url),
 				createdAt: user.createdAt.toISOString(),
 				updatedAt: user.updatedAt ? user.updatedAt.toISOString() : null,
-				bannerUrl: user.bannerUrl,
+				bannerUrl: sanitizeUrl(user.bannerUrl),
 				bannerBlurhash: user.bannerBlurhash,
 				bannerColor: null, // 後方互換性のため
 				hideFF: user.hideFF,

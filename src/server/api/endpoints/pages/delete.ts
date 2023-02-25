@@ -45,7 +45,9 @@ export default define(meta, async (ps, user) => {
 	if (page == null) {
 		throw new ApiError(meta.errors.noSuchPage);
 	}
-	if (page.userId !== user.id) {
+
+	//削除はモデレータでもできる
+	if (page.userId !== user.id && !(user.isAdmin || user.isModerator)) {
 		throw new ApiError(meta.errors.accessDenied);
 	}
 

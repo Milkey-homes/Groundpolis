@@ -101,7 +101,7 @@ export default define(meta, async (ps, me) => {
 	if (me) generateMutedUserQuery(query, me);
 
 	if (ps.tag) {
-		if (!safeForSql(ps.tag)) return;
+		if (!safeForSql(normalizeForSearch(ps.tag))) return;
 		query.andWhere(`'{"${normalizeForSearch(ps.tag)}"}' <@ note.tags`);
 	} else {
 		let i = 0;
@@ -109,8 +109,8 @@ export default define(meta, async (ps, me) => {
 			for (const tags of ps.query!) {
 				qb.orWhere(new Brackets(qb => {
 					for (const tag of tags) {
-						if (!safeForSql(tag)) return;
-						qb.andWhere(`'{"${normalizeForSearch(ps.tag)}"}' <@ note.tags`);
+						if (!safeForSql(normalizeForSearch(tag))) return;
+						qb.andWhere(`'{"${normalizeForSearch(tag)}"}' <@ note.tags`);
 						i++;
 					}
 				}));

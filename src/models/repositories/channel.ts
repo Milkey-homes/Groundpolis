@@ -4,6 +4,7 @@ import { ensure } from '../../prelude/ensure';
 import { SchemaType } from '../../misc/schema';
 import { DriveFiles, ChannelFollowings, NoteUnreads } from '..';
 import { User } from '../entities/user';
+import { sanitizeUrl } from '../../misc/sanitize-url';
 
 export type PackedChannel = SchemaType<typeof packedChannelSchema>;
 
@@ -32,7 +33,7 @@ export class ChannelRepository extends Repository<Channel> {
 			name: channel.name,
 			description: channel.description,
 			userId: channel.userId,
-			bannerUrl: banner ? DriveFiles.getPublicUrl(banner, false) : null,
+			bannerUrl: banner ? (sanitizeUrl(DriveFiles.getPublicUrl(banner, false)) ?? null) : null,
 			usersCount: channel.usersCount,
 			notesCount: channel.notesCount,
 

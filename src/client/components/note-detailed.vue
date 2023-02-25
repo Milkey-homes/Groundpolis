@@ -22,7 +22,7 @@
 		</I18n>
 		<div class="info">
 			<button class="_button time" @click="showRenoteMenu()" ref="renoteTime">
-				<Fa class="dropdownIcon" v-if="isMyRenote" :icon="faEllipsisH"/>
+				<Fa class="dropdownIcon" v-if="isMyRenote || (this.$i.isModerator || this.$i.isAdmin)" :icon="faEllipsisH"/>
 				<MkTime :time="note.createdAt"/>
 			</button>
 			<span class="visibility" v-if="note.visibility !== 'public'">
@@ -862,9 +862,9 @@ export default defineComponent({
 		},
 
 		showRenoteMenu(viaKeyboard = false) {
-			if (!this.isMyRenote) return;
+			if (!this.isMyRenote && !(this.$i.isModerator || this.$i.isAdmin)) return;
 			os.modalMenu([{
-				text: this.$ts.unrenote,
+				text: (this.isMyRenote) ? this.$ts.unrenote : this.$ts.unrenoteAsAdmin,
 				icon: faTrashAlt,
 				danger: true,
 				action: () => {

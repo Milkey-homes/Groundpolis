@@ -1,6 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { Emoji } from '../entities/emoji';
 import { ensure } from '../../prelude/ensure';
+import { sanitizeUrl } from '../../misc/sanitize-url';
 
 @EntityRepository(Emoji)
 export class EmojiRepository extends Repository<Emoji> {
@@ -15,7 +16,7 @@ export class EmojiRepository extends Repository<Emoji> {
 			name: emoji.name,
 			category: emoji.category,
 			host: emoji.host,
-			url: emoji.url,
+			url: sanitizeUrl(emoji.url),
 		};
 	}
 

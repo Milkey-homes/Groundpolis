@@ -28,6 +28,9 @@
 								<Mfm :text="announcement.text"/>
 								<img v-if="announcement.imageUrl" :src="announcement.imageUrl"/>
 							</div>
+							<div class="footer">
+								<div>{{ $ts.createdAt }}: <MkTime :time="announcement.createdAt" mode="detail"/></div>
+							</div>
 						</section>
 					</MkPagination>
 				</div>
@@ -189,7 +192,7 @@ export default defineComponent({
 				box-sizing: border-box;
 				text-shadow: 0 0 8px black;
 				color: #fff;
-				
+
 				> .signup-disabled {
 					color: var(--infoWarnFg);
 					border: 2px dashed var(--infoWarnBg);
@@ -254,6 +257,11 @@ export default defineComponent({
 							}
 						}
 					}
+				}
+				> .footer {
+					margin: var(--margin) 0 var(--margin) 0;
+					font-size: 85%;
+					opacity: 0.75;
 				}
 			}
 

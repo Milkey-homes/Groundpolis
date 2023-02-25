@@ -37,9 +37,9 @@
 			<div class="_content">
 				<MkButton full @click="openProfile"><Fa :icon="faExternalLinkSquareAlt"/> {{ $ts.profile }}</MkButton>
 				<MkButton full v-if="user.host != null" @click="updateRemoteUser"><Fa :icon="faSync"/> {{ $ts.updateRemoteUser }}</MkButton>
-				<MkButton full @click="resetPassword"><Fa :icon="faKey"/> {{ $ts.resetPassword }}</MkButton>
-				<MkButton full @click="deleteAllFiles" danger><Fa :icon="faTrashAlt"/> {{ $ts.deleteAllFiles }}</MkButton>
-        <MkButton full @click="deleteAccount" danger :disabled="user.isModerator || user.isAdmin"><Fa :icon="faTrashAlt"/> {{ $ts.deleteAccount }}</MkButton>
+				<MkButton full @click="resetPassword" :disabled="(user.isModerator && !$i.isAdmin) || user.isAdmin"><Fa :icon="faKey"/> {{ $ts.resetPassword }}</MkButton>
+				<MkButton full @click="deleteAllFiles" danger :disabled="(user.isModerator && !$i.isAdmin) || user.isAdmin"><Fa :icon="faTrashAlt"/> {{ $ts.deleteAllFiles }}</MkButton>
+				<MkButton full @click="deleteAccount" danger :disabled="user.isModerator || user.isAdmin"><Fa :icon="faTrashAlt"/> {{ $ts.deleteAccount }}</MkButton>
 			</div>
 		</div>
 		<div class="_section">

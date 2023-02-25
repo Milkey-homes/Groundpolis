@@ -12,6 +12,7 @@ import { Emoji } from '../entities/emoji';
 import { concat } from '../../prelude/array';
 import parseAcct from '../../misc/acct/parse';
 import { resolveUser } from '../../remote/resolve-user';
+import { sanitizeUrl } from '../../misc/sanitize-url';
 
 export type PackedNote = SchemaType<typeof packedNoteSchema>;
 
@@ -163,7 +164,7 @@ export class NoteRepository extends Repository<Note> {
 				}).then(emojis => emojis.map((emoji: Emoji) => {
 					return {
 						name: emoji.name,
-						url: emoji.url,
+						url: sanitizeUrl(emoji.url),
 					};
 				}));
 
@@ -181,7 +182,7 @@ export class NoteRepository extends Repository<Note> {
 				).then(users => users.filter((u) => u.user != null).map(u => {
 					const res = {
 						name: u.acct,
-						url: u.user?.avatarUrl || ''
+						url: sanitizeUrl(u.user?.avatarUrl) || ''
 					};
 					return res;
 				}));
@@ -207,7 +208,7 @@ export class NoteRepository extends Repository<Note> {
 				}).then(emojis => emojis.map((emoji: Emoji) => {
 					return {
 						name: `${emoji.name}@${emoji.host || '.'}`,	// @host付きでローカルは.
-						url: emoji.url,
+						url: sanitizeUrl(emoji.url),
 					};
 				}));
 				all = concat([all, tmp]);
@@ -232,7 +233,7 @@ export class NoteRepository extends Repository<Note> {
 		let text = note.text;
 
 		if (note.name && (note.url || note.uri)) {
-			text = `【${note.name}】\n${(note.text || '').trim()}\n\n${note.url || note.uri}`;
+			text = `【${note.name}】\n${(note.text || '').trim()}\n\n${sanitizeUrl(note.url) || sanitizeUrl(note.uri)}`;
 		}
 
 		const channel = note.channelId
@@ -269,8 +270,8 @@ export class NoteRepository extends Repository<Note> {
 				name: channel.name,
 			} : undefined,
 			mentions: note.mentions.length > 0 ? note.mentions : undefined,
-			uri: note.uri || undefined,
-			url: note.url || undefined,
+			uri: sanitizeUrl(note.uri) || undefined,
+			url: sanitizeUrl(note.url) || undefined,
 			_featuredId_: (note as any)._featuredId_ || undefined,
 			_prId_: (note as any)._prId_ || undefined,
 

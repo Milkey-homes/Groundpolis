@@ -26,7 +26,7 @@ export const meta = {
 	}
 };
 
-export default define(meta, async (ps) => {
+export default define(meta, async (ps, me) => {
 	const user = await Users.findOne(ps.userId as string);
 
 	if (user == null) {
@@ -35,6 +35,10 @@ export default define(meta, async (ps) => {
 
 	if (user.isAdmin) {
 		throw new Error('cannot reset password of admin');
+	}
+
+	if (user.isModerator && me.isModerator) {
+		throw new Error('cannnot reset password of moderator');
 	}
 
 	const passwd = rndstr('a-zA-Z0-9', 8);

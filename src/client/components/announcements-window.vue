@@ -13,7 +13,9 @@
 			<mfm :text="currentAnnouncement.text" :once="false"/>
 			<img v-if="currentAnnouncement.imageUrl" :src="currentAnnouncement.imageUrl"/>
 		</div>
-		<div class="time"><MkTime :time="currentAnnouncement.createdAt" mode="detail"/></div>
+		<div class="footer">
+			<div>{{ $ts.createdAt }}: <MkTime :time="currentAnnouncement.createdAt" mode="detail"/></div>
+		</div>
 	</div>
 	<template #footer>
 		<div class="navigation">
@@ -115,6 +117,11 @@ export default defineComponent({
 			font-weight: bold;
 			margin-bottom: 1em;
 			font-size: 1em;
+		}
+		> .footer {
+			margin: var(--margin) 0 var(--margin) 0;
+			font-size: 85%;
+			opacity: 0.75;
 		}
 }
 .navigation {
