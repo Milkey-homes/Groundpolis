@@ -875,6 +875,7 @@ voteConfirm: "Are you sure that you want to vote?"
 deleteAccount: "Delete Account"
 deleteAccountConfirm: "Are you sure that you want to delete this account?"
 createdAt: "Created at"
+enableAbsoluteTime: "Enable Absolute Time"
 
 _template:
   edit: "Edit Template..."

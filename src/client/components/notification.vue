@@ -23,7 +23,8 @@
 		<header>
 			<MkA v-if="notification.user" class="name" :to="userPage(notification.user)" v-user-preview="notification.user.id"><MkUserName :user="notification.user"/></MkA>
 			<span v-else style="font-weight: bold">{{ notification.header }}</span>
-			<MkTime :time="notification.createdAt" v-if="withTime" class="time"/>
+			<MkTime :time="notification.createdAt" mode="absolute" v-if="withTime && enableAbsoluteTime" class="time"/>
+			<MkTime :time="notification.createdAt" mode="relative" v-else-if="withTime && !enableAbsoluteTime" class="time"/>
 		</header>
 		<MkA v-if="notification.type === 'reaction'" class="text" :to="notePage(notification.note)" :title="getNoteSummary(notification.note)">
 			<Fa :icon="faQuoteLeft"/>
@@ -89,6 +90,7 @@ import notePage from '../filters/note';
 import { userPage } from '../filters/user';
 import { i18n } from '@/i18n';
 import * as os from '@/os';
+import { defaultStore } from '@/store';
 
 const locale = i18n.locale;
 
@@ -127,6 +129,9 @@ export default defineComponent({
 	computed: {
 		isCompactMode(): boolean {
 			return this.$store.state.postStyle === 'compact';
+		},
+		enableAbsoluteTime() {
+			return this.$store.reactiveState.enableAbsoluteTime.value;
 		},
 	},
 

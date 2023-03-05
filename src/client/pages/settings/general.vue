@@ -51,6 +51,7 @@
 		<FormSwitch v-model:value="useSticker">{{ $ts.useSticker }}
 			<template #desc>{{$ts.useStickerDesc}}</template>
 		</FormSwitch>
+		<FormSwitch v-model:value="enableAbsoluteTime">{{ $ts.enableAbsoluteTime }}</FormSwitch>
 	</FormGroup>
 
 	<FormSwitch v-model:value="showFullAcct">{{ $ts.showFullAcct }}
@@ -228,6 +229,7 @@ export default defineComponent({
 		showVoteConfirm: defaultStore.makeGetterSetter('showVoteConfirm'),
 		aiChanMode: defaultStore.makeGetterSetter('aiChanMode'),
 		renoteButtonMode: defaultStore.makeGetterSetter('renoteButtonMode'),
+		enableAbsoluteTime: defaultStore.makeGetterSetter('enableAbsoluteTime'),
 	},
 
 	watch: {

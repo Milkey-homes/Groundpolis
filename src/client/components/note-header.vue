@@ -17,7 +17,8 @@
 	<div class="info">
 		<span class="mobile" v-if="note.viaMobile"><Fa :icon="faMobileAlt"/></span>
 		<MkA class="created-at" :to="notePage(note)">
-			<MkTime :time="note.createdAt"/>
+			<MkTime v-if="enableAbsoluteTime" :time="note.createdAt" mode="absolute"/>
+			<MkTime v-else-if="!enableAbsoluteTime" :time="note.createdAt" mode="relative"/>
 		</MkA>
 		<VisibilityIcon class="visibility" v-if="note.visibility !== 'public' || note.localOnly || note.remoteFollowersOnly"
 			:visibility="note.visibility"
@@ -36,6 +37,7 @@ import notePage from '../filters/note';
 import { userPage } from '../filters/user';
 import GpVerified from './verified.vue';
 import VisibilityIcon from './visibility-icon.vue';
+import { defaultStore } from '@/store';
 
 export default defineComponent({
 	components: {
@@ -62,6 +64,12 @@ export default defineComponent({
 	methods: {
 		notePage,
 		userPage
+	},
+
+	computed: {
+		enableAbsoluteTime() {
+			return this.$store.reactiveState.enableAbsoluteTime.value;
+		},
 	}
 });
 </script>

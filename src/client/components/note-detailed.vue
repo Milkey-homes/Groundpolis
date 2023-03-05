@@ -23,7 +23,8 @@
 		<div class="info">
 			<button class="_button time" @click="showRenoteMenu()" ref="renoteTime">
 				<Fa class="dropdownIcon" v-if="isMyRenote || (this.$i.isModerator || this.$i.isAdmin)" :icon="faEllipsisH"/>
-				<MkTime :time="note.createdAt"/>
+				<MkTime v-if="enableAbsoluteTime" :time="note.createdAt" mode="absolute"/>
+				<MkTime v-else-if="!enableAbsoluteTime" :time="note.createdAt" mode="relative"/>
 			</button>
 			<span class="visibility" v-if="note.visibility !== 'public'">
 				<VisibilityIcon
@@ -168,7 +169,7 @@ import copyToClipboard from '@/scripts/copy-to-clipboard';
 import { checkWordMute } from '@/scripts/check-word-mute';
 import { userPage } from '@/filters/user';
 import * as os from '@/os';
-import { noteActions, noteViewInterruptors } from '@/store';
+import { defaultStore, noteActions, noteViewInterruptors } from '@/store';
 import { extractUrlFromMfm } from '../../misc/extract-url-from-mfm';
 
 function markRawAll(...xs) {
@@ -230,6 +231,9 @@ export default defineComponent({
 	},
 
 	computed: {
+		enableAbsoluteTime() {
+			return this.$store.reactiveState.enableAbsoluteTime.value;
+		},
 		disableReactions() {
 			return this.$store.reactiveState.disableReactions.value;
 		},
