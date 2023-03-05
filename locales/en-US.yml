@@ -875,6 +875,8 @@ voteConfirm: "Are you sure that you want to vote?"
 deleteAccount: "Delete Account"
 deleteAccountConfirm: "Are you sure that you want to delete this account?"
 createdAt: "Created at"
+loggedInAsBot: "Logging in As Bot Account"
+enableBotLoggedinWarning: "Show warning of logging in as bot account"
 
 _template:
   edit: "Edit Template..."
