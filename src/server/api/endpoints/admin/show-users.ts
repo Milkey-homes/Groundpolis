@@ -38,8 +38,11 @@ export const meta = {
 				'moderator',
 				'adminOrModerator',
 				'verified',
+				'premium',
 				'silenced',
 				'suspended',
+				'cat',
+				'bot',
 			]),
 			default: 'all'
 		},
@@ -78,6 +81,8 @@ export default define(meta, async (ps, me) => {
 		case 'alive': query.where('user.updatedAt > :date', { date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5) }); break;
 		case 'silenced': query.where('user.isSilenced = TRUE'); break;
 		case 'suspended': query.where('user.isSuspended = TRUE'); break;
+		case 'cat': query.where('user.isCat = TRUE'); break;
+		case 'bot': query.where('user.isBot = TRUE'); break;
 	}
 
 	switch (ps.origin) {

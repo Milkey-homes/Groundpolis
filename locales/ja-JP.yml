@@ -912,6 +912,9 @@ voteConfirm: "投票しますか？"
 deleteAccount: "アカウント削除"
 deleteAccountConfirm: "本当にこのアカウントを削除しますか？"
 createdAt: "作成日時"
+bot: "ボット"
+cat: "ねこ"
+verified: "公式"
 
 _template:
   edit: "定型文を編集…"

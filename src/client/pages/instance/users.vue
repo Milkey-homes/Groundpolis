@@ -35,6 +35,10 @@
 					<option value="moderator">{{ $ts.moderator }}</option>
 					<option value="silenced">{{ $ts.silence }}</option>
 					<option value="suspended">{{ $ts.suspend }}</option>
+					<option value="verified">{{ $ts.verified }}</option>
+					<option value="premium">{{ $ts.premium }}</option>
+					<option value="cat">{{ $ts.cat }}</option>
+					<option value="bot">{{ $ts.bot }}</option>
 				</MkSelect>
 				<MkSelect v-model:value="origin" style="margin: 0; flex: 1;">
 					<template #label>{{ $ts.instance }}</template>
