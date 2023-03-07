@@ -912,6 +912,7 @@ voteConfirm: "投票しますか？"
 deleteAccount: "アカウント削除"
 deleteAccountConfirm: "本当にこのアカウントを削除しますか？"
 createdAt: "作成日時"
+invitationRequiredToRegister: "現在このサーバーは招待制です。招待コードをお持ちの方のみ登録できます。"
 
 _template:
   edit: "定型文を編集…"

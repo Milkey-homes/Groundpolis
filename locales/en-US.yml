@@ -875,6 +875,7 @@ voteConfirm: "Are you sure that you want to vote?"
 deleteAccount: "Delete Account"
 deleteAccountConfirm: "Are you sure that you want to delete this account?"
 createdAt: "Created at"
+invitationRequiredToRegister: "This server is currently invitation only. Only those with an invitation code can register."
 
 _template:
   edit: "Edit Template..."

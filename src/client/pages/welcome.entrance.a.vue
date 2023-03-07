@@ -27,10 +27,16 @@
 						<Mfm :text="meta.description || $ts.headlineMisskey" />
 					</div>
 				</div>
+				<div v-if="meta.disableRegistration && !meta.disableInvitation" class="warn">
+					<MkInfo warn>{{ $ts.invitationRequiredToRegister }}</MkInfo>
+				</div>
+				<div v-if="meta.disableRegistration && meta.disableInvitation" class="warn">
+					<MkInfo warn>{{ meta.disableInvitationReason }}</MkInfo>
+				</div>
 				<div class="action">
 					<MkButton @click="signup()" inline primary v-if="meta && !(meta.disableRegistration && meta.disableInvitation)">{{ $ts.signup }}</MkButton>
 					<MkButton @click="signin()" inline>{{ $ts.login }}</MkButton>
-					<MkButton inline style="margin-left: 12px;" onclick="window.location.href='/explore'">{{ $ts.explore }}</MkButton>
+					<MkButton inline style="margin-left: 12px;" @click="explore()">{{ $ts.explore }}</MkButton>
 				</div>
 				<div class="status" v-if="onlineUsersCount && stats">
 					<div>
@@ -65,6 +71,7 @@ import XTimeline from './welcome.timeline.vue';
 import { host, instanceName } from '@/config';
 import * as os from '@/os';
 import number from '@/filters/number';
+import MkInfo from '@/components/ui/info.vue';
 
 export default defineComponent({
 	components: {
@@ -72,6 +79,7 @@ export default defineComponent({
 		XNote,
 		MkFeaturedPhotos,
 		XTimeline,
+		MkInfo,
 	},
 
 	data() {
@@ -118,6 +126,10 @@ export default defineComponent({
 			os.popup(XSignupDialog, {
 				autoSet: true
 			}, {}, 'closed');
+		},
+
+		explore() {
+			this.$router.push('/explore')
 		},
 
 		showMenu(ev) {
@@ -267,6 +279,10 @@ export default defineComponent({
 
 				> .about {
 					padding: 0 32px;
+				}
+
+				> .warn {
+					padding: 32px 32px 0 32px;
 				}
 
 				> .action {
