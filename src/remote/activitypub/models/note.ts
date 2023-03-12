@@ -239,7 +239,7 @@ export async function createNote(value: string | IObject, resolver?: Resolver, s
 
 	const apEmojis = emojis.map(emoji => emoji.name);
 
-	const f = parse(text);
+	const f = parse(text || '');
 
 	if (f) {
 		const avatarEmojis = extractCustomEmojisFromMfm(f).filter(e => e.startsWith('@'));
