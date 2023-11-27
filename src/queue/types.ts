@@ -1,7 +1,7 @@
 import { DriveFile } from '../models/entities/drive-file';
 import { User } from '../models/entities/user';
 import { IActivity } from '../remote/activitypub/type';
-import * as httpSignature from 'http-signature';
+import * as httpSignature from '@peertube/http-signature';
 
 export type DeliverJobData = {
 	/** Actor */

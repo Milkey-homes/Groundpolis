@@ -1,6 +1,7 @@
 import * as Router from '@koa/router';
 import * as json from 'koa-json-body';
-import * as httpSignature from 'http-signature';
+import * as bodyParser from 'koa-bodyparser';
+import * as httpSignature from '@peertube/http-signature';
 
 import { renderActivity } from '../remote/activitypub/renderer';
 import renderNote from '../remote/activitypub/renderer/note';
@@ -19,6 +20,8 @@ import { In } from 'typeorm';
 import { ensure } from '../prelude/ensure';
 import { renderLike } from '../remote/activitypub/renderer/like';
 import config from '../config';
+import { verifyDigest } from '../remote/activitypub/check-fetch.js';
+import * as Koa from 'koa';
 
 // Init router
 const router = new Router();
@@ -28,11 +31,21 @@ const router = new Router();
 function inbox(ctx: Router.RouterContext) {
 	if (config.disableFederation) ctx.throw(404);
 
+	if (ctx.req.headers.host !== config.host) {
+		ctx.status = 400;
+		return;
+	}
+
 	let signature;
 
 	try {
-		signature = httpSignature.parseRequest(ctx.req, { 'headers': [] });
+		signature = httpSignature.parseRequest(ctx.req, { headers: ['(request-target)', 'digest', 'host', 'date'] });
 	} catch (e) {
+		ctx.status = 401;
+		return;
+	}
+
+	if (!verifyDigest(ctx.request.rawBody, ctx.headers.digest)) {
 		ctx.status = 401;
 		return;
 	}
@@ -60,9 +73,24 @@ export function setResponseType(ctx: Router.RouterContext) {
 	}
 }
 
+async function parseJsonBodyOrFail(ctx: Router.RouterContext, next: Koa.Next) {
+	const koaBodyParser = bodyParser({
+		enableTypes: ["json"],
+		detectJSON: () => true,
+	});
+
+	try {
+		await koaBodyParser(ctx, next);
+	}
+	catch {
+		ctx.status = 400;
+		return;
+	}
+}
+
 // inbox
-router.post('/inbox', json(), inbox);
-router.post('/users/:user/inbox', json(), inbox);
+router.post('/inbox', parseJsonBodyOrFail, inbox);
+router.post('/users/:user/inbox', parseJsonBodyOrFail, inbox);
 
 // note
 router.get('/notes/:note', async (ctx, next) => {
