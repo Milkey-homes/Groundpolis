@@ -257,7 +257,7 @@ export default define(meta, async (ps, user) => {
 
 		if (renote == null) {
 			throw new ApiError(meta.errors.noSuchRenoteTarget);
-		} else if (renote.renoteId && !renote.text && !renote.fileIds) {
+		} else if (renote.renoteId && !renote.text && renote.fileIds.length === 0) {
 			throw new ApiError(meta.errors.cannotReRenote);
 		}
 	}
@@ -272,7 +272,7 @@ export default define(meta, async (ps, user) => {
 		}
 
 		// 返信対象が引用でないRenoteだったらエラー
-		if (reply.renoteId && !reply.text && !reply.fileIds) {
+		if (reply.renoteId && !reply.text && reply.fileIds.length === 0) {
 			throw new ApiError(meta.errors.cannotReplyToPureRenote);
 		}
 	}
