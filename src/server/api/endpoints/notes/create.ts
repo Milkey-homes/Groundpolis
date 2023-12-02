@@ -229,6 +229,12 @@ export const meta = {
 			code: 'NO_SUCH_CHANNEL',
 			id: 'b1653923-5453-4edc-b786-7c4f39bb0bbb'
 		},
+
+		cannotRenoteDueToVisibility: {
+			message: 'You can not Renote due to target visibility.',
+			code: 'CANNOT_RENOTE_DUE_TO_VISIBILITY',
+			id: 'be9529e9-fe72-4de0-ae43-0b363c4938af',
+		},
 	}
 };
 
@@ -259,6 +265,15 @@ export default define(meta, async (ps, user) => {
 			throw new ApiError(meta.errors.noSuchRenoteTarget);
 		} else if (renote.renoteId && !renote.text && renote.fileIds.length === 0) {
 			throw new ApiError(meta.errors.cannotReRenote);
+		}
+
+		// Renote visibility Check
+		if ((renote.visibility === 'followers' || renote.visibility === 'users') && renote.userId !== user.id) {
+			// 他人のfollowers/users noteはreject
+			throw new ApiError(meta.errors.cannotRenoteDueToVisibility);
+		} else if (renote.visibility === 'specified') {
+			// specified / direct noteはreject
+			throw new ApiError(meta.errors.cannotRenoteDueToVisibility);
 		}
 	}
 

@@ -289,7 +289,7 @@ export default defineComponent({
 		},
 
 		canRenote(): boolean {
-			return ['public', 'home'].includes(this.appearNote.visibility) || this.isMyNote;
+			return ['public', 'home'].includes(this.appearNote.visibility) || (['followers', 'users'].includes(this.appearNote.visibility) && this.isMyNote);
 		},
 
 		reactionsCount(): number {
