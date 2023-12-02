@@ -83,12 +83,13 @@ export default define(meta, async (ps, me) => {
 		// リクエストされた通りに並べ替え
 		const _users = [];
 		for (const id of ps.userIds) {
-			_users.push(users.find(x => x.id === id));
+			const user = users.find((u) => u.id === id);
+			if (user) _users.push(user);
 		}
 
-		return await Promise.all(_users.map(u => Users.pack(u, me, {
-			detail: true
-		})));
+		return await Users.packMany(_users, me, {
+			detail: true,
+		});
 	} else {
 		// Lookup user
 		if (typeof ps.host === 'string' && typeof ps.username === 'string') {
