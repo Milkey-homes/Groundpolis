@@ -7,6 +7,8 @@ import { makePaginationQuery } from '../../common/make-pagination-query';
 import { generateVisibilityQuery } from '../../common/generate-visibility-query';
 import { activeUsersChart } from '../../../../services/chart';
 import { Brackets } from 'typeorm';
+import { generateMutedUserQuery } from '../../common/generate-muted-user-query';
+import { generateMutedNoteQuery } from '../../common/generate-muted-note-query';
 
 export const meta = {
 	desc: {
@@ -134,6 +136,8 @@ export default define(meta, async (ps, user) => {
 		.setParameters(listQuery.getParameters());
 
 	generateVisibilityQuery(query, user);
+	generateMutedUserQuery(query, user);
+	generateMutedNoteQuery(query, user);
 
 	if (ps.includeMyRenotes === false) {
 		query.andWhere(new Brackets(qb => {
