@@ -410,6 +410,12 @@ export default async (user: User, data: Option, silent = false) => new Promise<N
 		if (Users.isLocalUser(user)) {
 			(async () => {
 				const noteActivity = await renderNoteOrRenoteActivity(data, note);
+
+				// Skip deliver if local only notes
+				if (noteActivity === null) {
+					return;
+				}
+				
 				const dm = new DeliverManager(user, noteActivity);
 
 				// メンションされたリモートユーザーに配送
