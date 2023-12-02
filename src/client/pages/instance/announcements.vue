@@ -20,6 +20,7 @@
 					</div>
 				</div>
 			</section>
+			<MkButton class="button" inline @click="more()"><Fa :icon="faEllipsisH"/> {{ $ts.more }}</MkButton>
 		</div>
 	</div>
 </div>
@@ -27,7 +28,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { faBroadcastTower, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faBroadcastTower, faPlus, faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { faSave, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import MkButton from '@/components/ui/button.vue';
 import MkInput from '@/components/ui/input.vue';
@@ -52,7 +53,7 @@ export default defineComponent({
 				},
 			},
 			announcements: [],
-			faBroadcastTower, faSave, faTrashAlt
+			faBroadcastTower, faSave, faTrashAlt, faEllipsisH
 		}
 	},
 
@@ -91,6 +92,7 @@ export default defineComponent({
 						type: 'success',
 						text: this.$ts.saved
 					});
+					this.refresh();
 				}).catch(e => {
 					os.dialog({
 						type: 'error',
@@ -110,6 +112,20 @@ export default defineComponent({
 					});
 				});
 			}
+		},
+
+		refresh() {
+			os.api('admin/announcements/list').then(announcements => {
+				this.announcements = announcements;
+			});
+		},
+
+		more() {
+			const announcements = this.announcements;
+
+			os.api('admin/announcements/list', { untilId: announcements.reduce((acc, announcement) => announcement.id != null ? announcement : acc).id }).then(announcements => {
+				this.announcements = this.announcements.concat(announcements);
+			});
 		}
 	}
 });

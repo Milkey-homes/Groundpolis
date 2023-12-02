@@ -21,7 +21,7 @@ export const meta = {
 			validator: $.str.min(1)
 		},
 		imageUrl: {
-			validator: $.nullable.str.min(1)
+			validator: $.nullable.str.min(0)
 		}
 	},
 
@@ -43,6 +43,6 @@ export default define(meta, async (ps, me) => {
 		updatedAt: new Date(),
 		title: ps.title,
 		text: ps.text,
-		imageUrl: ps.imageUrl,
+		imageUrl: ps.imageUrl || null,
 	});
 });
