@@ -35,7 +35,7 @@ export default async function(user: User, note: Note, quiet = false) {
 		});
 
 		//#region ローカルの投稿なら削除アクティビティを配送
-		if (Users.isLocalUser(user)) {
+		if (Users.isLocalUser(user) && !note.localOnly) {
 			let renote: Note | undefined;
 
 			// if deletd note is renote
@@ -50,6 +50,14 @@ export default async function(user: User, note: Note, quiet = false) {
 				: renderDelete(renderTombstone(`${config.url}/notes/${note.id}`), user));
 
 			deliverToConcerned(user, note, content);
+		}
+
+		// also send delete activity of cascaded notes to stream
+		const allCascadingNotes = (await findAllCascadingNotes(note));
+		for (const eachCascadingNote of allCascadingNotes) {
+			publishNoteStream(eachCascadingNote.id, 'deleted', {
+				deletedAt: deletedAt,
+			});
 		}
 
 		// also deliever delete activity to cascaded notes
@@ -100,6 +108,28 @@ async function findCascadingNotes(note: Note) {
 	await recursive(note.id);
 
 	return cascadingNotes.filter(note => note.userHost === null); // filter out non-local users
+}
+
+async function findAllCascadingNotes(note: Note) {
+	const cascadingNotes: Note[] = [];
+
+	const recursive = async (noteId: string) => {
+		const query = Notes.createQueryBuilder('note')
+			.where('note.replyId = :noteId', { noteId })
+			.orWhere(new Brackets(q => {
+				q.where('note.renoteId = :noteId', { noteId })
+				.andWhere('note.text IS NOT NULL');
+			}))
+			.leftJoinAndSelect('note.user', 'user');
+		const replies = await query.getMany();
+		for (const reply of replies) {
+			cascadingNotes.push(reply);
+			await recursive(reply.id);
+		}
+	};
+	await recursive(note.id);
+
+	return cascadingNotes;
 }
 
 async function getMentionedRemoteUsers(note: Note) {

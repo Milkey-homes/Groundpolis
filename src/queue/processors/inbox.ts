@@ -1,5 +1,5 @@
 import * as Bull from 'bull';
-import * as httpSignature from 'http-signature';
+import * as httpSignature from '@peertube/http-signature';
 import perform from '../../remote/activitypub/perform';
 import Logger from '../../services/logger';
 import { registerOrFetchInstanceDoc } from '../../services/register-or-fetch-instance-doc';
@@ -13,6 +13,7 @@ import { InboxJobData } from '..';
 import DbResolver from '../../remote/activitypub/db-resolver';
 import { resolvePerson } from '../../remote/activitypub/models/person';
 import { LdSignature } from '../../remote/activitypub/misc/ld-signature';
+import { verifySignature } from '../../remote/activitypub/check-fetch.js';
 
 const logger = new Logger('inbox');
 
@@ -65,6 +66,10 @@ export default async (job: Bull.Job<InboxJobData>): Promise<string> => {
 
 	// HTTP-Signatureの検証
 	const httpSignatureValidated = httpSignature.verifySignature(signature, authUser.key.keyPem);
+
+	if (httpSignatureValidated) {
+		if (!verifySignature(signature, authUser.key)) return `skip: Invalid HTTP signature`;
+	}
 
 	// また、signatureのsignerは、activity.actorと一致する必要がある
 	if (!httpSignatureValidated || authUser.user.uri !== activity.actor) {

@@ -395,6 +395,7 @@ export default defineComponent({
 		capture(withHandler = false) {
 			if (this.$i) {
 				this.connection.send(document.body.contains(this.$el) ? 'sn' : 's', { id: this.appearNote.id });
+				if (this.note.id !== this.appearNote.id) this.connection.send('s', { id: this.note.id });
 				if (withHandler) this.connection.on('noteUpdated', this.onStreamNoteUpdated);
 			}
 		},
@@ -404,6 +405,11 @@ export default defineComponent({
 				this.connection.send('un', {
 					id: this.appearNote.id
 				});
+				if (this.note.id !== this.appearNote.id) {
+					this.connection.send('un', {
+						id: this.note.id,
+					});
+				}
 				if (withHandler) this.connection.off('noteUpdated', this.onStreamNoteUpdated);
 			}
 		},
@@ -415,7 +421,7 @@ export default defineComponent({
 		onStreamNoteUpdated(data) {
 			const { type, id, body } = data;
 
-			if (id !== this.appearNote.id) return;
+			if ((id !== this.note.id) && (id !== this.appearNote.id)) return;
 
 			switch (type) {
 				case 'reacted': {

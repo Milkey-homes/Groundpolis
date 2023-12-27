@@ -82,7 +82,7 @@ export const meta = {
 	}
 };
 
-export default define(meta, async (ps, me) => {
+export default define(meta, async (ps, me, token) => {
 	const instance = await fetchMeta(true);
 
 	const emojis = await Emojis.find({
@@ -181,7 +181,7 @@ export default define(meta, async (ps, me) => {
 			miauth: true,
 		};
 
-		if (me && me.isAdmin) {
+		if (me && me.isAdmin && !token) {
 			response.useStarForReactionFallback = instance.useStarForReactionFallback;
 			response.pinnedUsers = instance.pinnedUsers;
 			response.hiddenTags = instance.hiddenTags;
