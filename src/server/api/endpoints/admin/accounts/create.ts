@@ -16,11 +16,12 @@ export const meta = {
 	}
 };
 
-export default define(meta, async (ps, me) => {
+export default define(meta, async (ps, me, token) => {
 	const noUsers = (await Users.count({
 		host: null,
 	})) === 0;
 	if (!noUsers && !me?.isAdmin) throw new Error('access denied');
+	if (token) throw new Error('access denied');
 
 	const { account, secret } = await signup(ps.username, ps.password);
 
