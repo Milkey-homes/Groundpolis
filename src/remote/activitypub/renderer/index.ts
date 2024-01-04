@@ -44,7 +44,7 @@ export const attachLdSignature = async (activity: any, user: ILocalUser): Promis
 		PropertyValue: 'schema:PropertyValue',
 		value: 'schema:value',
 		// Misskey
-		misskey: `${config.url}/ns#`,
+		misskey: `https://misskey-hub.net/ns#`,
 		'_misskey_content': 'misskey:_misskey_content',
 		'_misskey_quote': 'misskey:_misskey_quote',
 		'_misskey_reaction': 'misskey:_misskey_reaction',
