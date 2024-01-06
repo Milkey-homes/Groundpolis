@@ -43,6 +43,7 @@
 				<button @click="addVisibleUser" class="_buttonPrimary"><Fa :icon="faPlus" fixed-width/></button>
 			</div>
 		</div>
+		<MkInfo v-if="hasNotSpecifiedMentions" warn class="hasNotSpecifiedMentions">{{ $ts.notSpecifiedMentionWarning }} - <button class="_textButton" @click="addMissingMention()">{{ $ts.add }}</button></MkInfo>
 		<input v-show="useCw" ref="cw" class="cw" v-model="cw" :placeholder="$ts.annotation" @keydown="onKeydown">
 		<textarea v-model="text" class="text" :class="{ withCw: useCw }" ref="text" :disabled="posting" :placeholder="placeholder" @keydown="onKeydown" @paste="onPaste" @compositionupdate="onCompositionUpdate" @compositionend="onCompositionEnd" />
 		<input v-show="useBroadcast" ref="broadcastText" class="broadcastText" v-model="broadcastText" :placeholder="$ts.broadcastTextDescription" @keydown="onKeydown">
@@ -96,11 +97,13 @@ import { defaultStore, notePostInterruptors, postFormActions, Template } from '@
 import VisibilityIcon from './visibility-icon.vue';
 import MkSwitch from './ui/switch.vue';
 import renderAcct from '@/../misc/acct/render';
+import MkInfo from './ui/info.vue';
 
 export default defineComponent({
 	components: {
 		XNotePreview,
 		MkSwitch,
+		MkInfo,
 		XPostFormAttaches: defineAsyncComponent(() => import('./post-form-attaches.vue')),
 		XPollEditor: defineAsyncComponent(() => import('./poll-editor.vue')),
 		VisibilityIcon,
@@ -177,6 +180,7 @@ export default defineComponent({
 			autocomplete: null,
 			draghover: false,
 			quote: null as Record<string, unknown> | null,
+			hasNotSpecifiedMentions: false,
 			recentHashtags: JSON.parse(localStorage.getItem('hashtags') || '[]'),
 			imeText: '',
 			postFormActions,
@@ -264,6 +268,18 @@ export default defineComponent({
 		currentAccountIsMyself(): boolean {
 			return this.$i.id === this.currentAccount.id;
 		},
+	},
+
+	watch: {
+		text() {
+			this.checkMissingMention();
+		},
+		visibleUsers: {
+			handler() {
+				this.checkMissingMention();
+			},
+			deep: true
+		}
 	},
 
 	mounted() {
@@ -429,6 +445,32 @@ export default defineComponent({
 			this.$watch('visibleUsers', this.saveDraft);
 			this.$watch('localOnly', this.saveDraft);
 			this.$watch('remoteFollowersOnly', this.saveDraft);
+		},
+
+		checkMissingMention() {
+			if (this.visibility === 'specified') {
+				const ast = mfm.parse(this.text);
+
+				for (const x of extractMentions(ast)) {
+					if (!this.visibleUsers.some(u => (u.username === x.username) && (u.host == x.host))) {
+						this.hasNotSpecifiedMentions = true;
+						return;
+					}
+				}
+			}
+			this.hasNotSpecifiedMentions = false;
+		},
+
+		addMissingMention() {
+			const ast = mfm.parse(this.text);
+
+			for (const x of extractMentions(ast)) {
+				if (!this.visibleUsers.some(u => (u.username === x.username) && (u.host == x.host))) {
+					os.api('users/show', { username: x.username, host: x.host }).then(user => {
+						this.visibleUsers.push(user);
+					});
+				}
+			}
 		},
 
 		togglePoll() {
@@ -1001,6 +1043,10 @@ export default defineComponent({
 			&:disabled {
 				opacity: 0.5;
 			}
+		}
+
+		> .hasNotSpecifiedMentions {
+			margin: 0 20px 16px 20px;
 		}
 
 		> .cw {
