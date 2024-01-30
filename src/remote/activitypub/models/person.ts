@@ -349,7 +349,7 @@ export async function updatePerson(uri: string, resolver?: Resolver | null, hint
 		emojis: emojiNames,
 		name: person.name,
 		tags,
-		isBot: object.type === 'Service',
+		isBot: object.type === 'Service' || object.type === 'Application',
 		isCat: (person as any).isCat === true,
 		isLocked: !!person.manuallyApprovesFollowers,
 		sex: gpSexMap[sex],
