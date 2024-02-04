@@ -143,7 +143,7 @@ export async function createPerson(uri: string, resolver?: Resolver): Promise<Us
 
 	const tags = extractApHashtags(person.tag).map(tag => normalizeForSearch(tag)).splice(0, 32);
 
-	const isBot = object.type === 'Service';
+	const isBot = object.type === 'Service' || object.type === 'Application';
 
 	const bday = person['vcard:bday']?.match(/^\d{4}-\d{2}-\d{2}/);
 
