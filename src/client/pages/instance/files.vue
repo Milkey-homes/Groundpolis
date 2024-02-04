@@ -31,7 +31,10 @@
 			</div>
 			<div class="inputs" style="display: flex; padding-top: 1.2em;">
 				<MkInput v-model:value="type" :debounce="true" type="search" style="margin: 0; flex: 1;">
-					<span>{{ $ts.type }}</span>
+					<span>MIME type</span>
+				</MkInput>
+				<MkInput v-model:value="searchUser" :debounce="true" type="search" style="margin: 0; flex: 1;">
+					<span>UserId</span>
 				</MkInput>
 			</div>
 			<MkPagination :pagination="pagination" #default="{items}" class="urempief" ref="files">
@@ -91,13 +94,15 @@ export default defineComponent({
 			origin: 'local',
 			type: null,
 			searchHost: '',
+			searchUser: '',
 			pagination: {
 				endpoint: 'admin/drive/files',
 				limit: 10,
 				params: () => ({
 					type: (this.type && this.type !== '') ? this.type : null,
+					userId: (this.searchUser && this.searchUser !== '') ? this.searchUser : null,
 					origin: this.origin,
-					hostname: (this.hostname && this.hostname !== '') ? this.hostname : null,
+					hostname: (this.searchHost && this.searchHost !== '') ? this.searchHost : null,
 				}),
 			},
 			faTrashAlt, faCloud, faSearch,
@@ -112,6 +117,9 @@ export default defineComponent({
 			this.$refs.files.reload();
 		},
 		searchHost() {
+			this.$refs.files.reload();
+		},
+		searchUser() {
 			this.$refs.files.reload();
 		},
 	},
