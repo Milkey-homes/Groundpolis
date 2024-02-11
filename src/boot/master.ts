@@ -61,9 +61,11 @@ export async function masterMain() {
 		await spawnWorkers(config.clusterLimit);
 	}
 
-	bootLogger.succ(`Now listening on port ${config.port} on ${config.url}`, null, true);
+	if (!program.onlyQueue) {
+		bootLogger.succ(`Now listening on port ${config.port} on ${config.url}`, null, true);
+	}
 
-	if (!program.noDaemons) {
+	if (!program.noDaemons && !program.onlyQueue) {
 		require('../daemons/server-stats').default();
 		require('../daemons/queue-stats').default();
 		require('../daemons/janitor').default();
@@ -81,6 +83,10 @@ function showEnvironment(): void {
 		logger.warn('The environment is not in production mode.');
 		logger.warn('DO NOT USE FOR PRODUCTION PURPOSE!', null, true);
 	}
+	if (program.onlyQueue) logger.warn('onlyQueue is set');
+	if (program.onlyServer) logger.warn('onlyServer is set');
+	if (program.disableClustering) logger.warn('disableClustering is set');
+	if (program.noDaemons) logger.warn('noDaemons is set');
 }
 
 /**
