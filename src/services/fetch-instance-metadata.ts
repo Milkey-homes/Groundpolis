@@ -33,7 +33,7 @@ export async function fetchInstanceMetadata(instance: Instance, force = false): 
 		const [favicon, icon, themeColor, name, description] = await Promise.all([
 			fetchFaviconUrl(instance, dom).catch(() => null),
 			fetchIconUrl(instance, dom, manifest).catch(() => null),
-			getThemeColor(dom, manifest).catch(() => null),
+			getThemeColor(info, dom, manifest).catch(() => null),
 			getSiteName(info, dom, manifest).catch(() => null),
 			getDescription(info, dom, manifest).catch(() => null),
 		]);
@@ -221,9 +221,9 @@ async function fetchIconUrl(instance: Instance, doc: DOMWindow['document'] | nul
 	return null;
 }
 
-async function getThemeColor(doc: DOMWindow['document'] | null, manifest: Record<string, any> | null): Promise<string | null> {
+async function getThemeColor(info: NodeInfo | null, doc: DOMWindow['document'] | null, manifest: Record<string, any> | null): Promise<string | null> {
 	if (doc) {
-		const themeColor = doc.querySelector('meta[name="theme-color"]')?.getAttribute('content');
+		const themeColor = info?.metadata?.themeColor || doc.querySelector('meta[name="theme-color"]')?.getAttribute('content');
 
 		if (themeColor) {
 			return themeColor;

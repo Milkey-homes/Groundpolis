@@ -29,9 +29,42 @@ export default defineComponent({
 
 	computed: {
 		bg(): any {
-			const themeColor = this.info.themeColor || '#777777';
+			let softwareColor = '';
+			switch (this.info.softwareName) {
+	      case 'mastodon':
+					if (this.info.softwareVersion && parseInt(this.info.softwareVersion) >= 4) {
+						softwareColor = '#563acc';
+					} else {
+						softwareColor = '#2b90d9';
+					}
+	        break;
+	      case 'pleroma':
+	        softwareColor = '#10181e';
+	        break;
+	      case 'groundpolis':
+	        softwareColor = '#251a10';
+	        break;
+				case 'groundpolis-milkey':
+		      softwareColor = '#ed6c8e';
+		      break;
+	      case 'cherrypick':
+	        softwareColor = '#ffbcdc';
+	        break;
+	      case 'misskey':
+	        softwareColor = '#86b300';
+	        break;
+				case 'firefish':
+		      softwareColor = '#31748f';
+		      break;
+				case 'meisskey':
+					softwareColor = '#5A0608';
+					break;
+	      default:
+	        softwareColor = '#777777';
+    	}
+			const themeColor = this.info.themeColor || softwareColor;
 			return {
-				background: `linear-gradient(90deg, ${themeColor}, ${themeColor + '00'})`
+				background: `linear-gradient(90deg, ${themeColor}, ${themeColor}00)`
 			};
 		}
 	}

@@ -916,6 +916,7 @@ invitationRequiredToRegister: "現在このサーバーは招待制です。招�
 leaveGroup: "グループから抜ける"
 leaveGroupConfirm: "「{name}」から抜けますか？"
 notSpecifiedMentionWarning: "宛先に含まれていないメンションがあります"
+themeColor: "テーマカラー"
 
 _template:
   edit: "定型文を編集…"

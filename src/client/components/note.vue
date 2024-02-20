@@ -38,14 +38,7 @@
 		<MkAvatar class="avatar" :user="appearNote.user"/>
 		<div class="main">
 			<XNoteHeader class="header" :note="appearNote" :mini="true" :detail="detail"/>
-			<div v-if="showTicker && !appearNote.user.host" class="instance-ticker groundpolis">
-				<img src="/favicon.ico" alt="favicon" class="favicon"/>
-				<span v-text="meta.name && meta.name !== host ? `${meta.name} (${host})` : host"/>
-			</div>
-			<div v-else-if="showTicker && instance" class="instance-ticker" :class="instance.softwareName">
-				<img :src="instance.iconUrl" alt="favicon" class="favicon"/>
-				<span v-text="instance.name && instance.name !== instance.host ? `${instance.name} (${instance.host})` : instance.host"/>
-			</div>
+			<MkInstanceTicker v-if="showTicker" class="ticker" :instance="appearNote.user.instance"/>
 			<div class="body">
 				<p v-if="appearNote.cw != null" class="cw">
 					<Mfm v-if="appearNote.cw != '' && !isPlainMode" class="text" :text="appearNote.cw" :author="appearNote.user" :i="$i" :custom-emojis="appearNote.emojis" :no-sticker="true"/>
@@ -171,6 +164,7 @@ export default defineComponent({
 		XPoll,
 		MkUrlPreview: defineAsyncComponent(() => import('@/components/url-preview.vue')),
 		VisibilityIcon,
+		MkInstanceTicker: defineAsyncComponent(() => import('@/components/instance-ticker.vue')),
 	},
 
 	inject: {

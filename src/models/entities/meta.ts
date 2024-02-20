@@ -147,6 +147,12 @@ export class Meta {
 	})
 	public iconUrl: string | null;
 
+	@Column('varchar', {
+		length: 512,
+		nullable: true,
+	})
+	public themeColor: string | null;
+
 	@Column('boolean', {
 		default: true,
 	})

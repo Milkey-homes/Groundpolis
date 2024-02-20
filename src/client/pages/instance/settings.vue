@@ -10,6 +10,7 @@
 			<MkInput v-model:value="backgroundImageUrl"><template #icon><Fa :icon="faLink"/></template>{{ $ts.backgroundImageUrl }}</MkInput>
 			<MkInput v-model:value="logoImageUrl"><template #icon><Fa :icon="faLink"/></template>{{ $ts.logoImageUrl }}</MkInput>
 			<MkInput v-model:value="tosUrl"><template #icon><Fa :icon="faLink"/></template>{{ $ts.tosUrl }}</MkInput>
+			<MkInput v-model:value="themeColor"><template #icon><Fa :icon="faPalette"/></template>{{ $ts.themeColor }}</MkInput>
 			<MkInput v-model:value="maintainerName">{{ $ts.maintainerName }}</MkInput>
 			<MkInput v-model:value="maintainerEmail" type="email"><template #icon><Fa :icon="faEnvelope"/></template>{{ $ts.maintainerEmail }}</MkInput>
 		</div>
@@ -264,7 +265,7 @@
 
 <script lang="ts">
 import { defineComponent, defineAsyncComponent } from 'vue';
-import { faPencilAlt, faShareAlt, faGhost, faCog, faPlus, faCloud, faBan, faSave, faServer, faLink, faThumbtack, faUser, faShieldAlt, faKey, faBolt, faArchway } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt, faShareAlt, faGhost, faCog, faPlus, faCloud, faBan, faSave, faServer, faLink, faThumbtack, faUser, faShieldAlt, faKey, faBolt, faArchway, faPalette } from '@fortawesome/free-solid-svg-icons';
 import { faTrashAlt, faEnvelope } from '@fortawesome/free-regular-svg-icons';
 import { faTwitter, faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
 import MkButton from '@/components/ui/button.vue';
@@ -317,6 +318,7 @@ export default defineComponent({
 			iconUrl: null,
 			logoImageUrl: null,
 			backgroundImageUrl: null,
+			themeColor: null,
 			maxNoteTextLength: 0,
 			enableRegistration: false,
 			enableInvitation: false,
@@ -367,7 +369,7 @@ export default defineComponent({
 			emojiLimitPremium: false,
 			emojiLimitValue: 10,
 			emojiLimitValuePremium: 10,
-			faPencilAlt, faTwitter, faDiscord, faGithub, faShareAlt, faTrashAlt, faGhost, faCog, faPlus, faCloud, faBan, faSave, faServer, faLink, faEnvelope, faThumbtack, faUser, faShieldAlt, faKey, faBolt, faArchway
+			faPencilAlt, faTwitter, faDiscord, faGithub, faShareAlt, faTrashAlt, faGhost, faCog, faPlus, faCloud, faBan, faSave, faServer, faLink, faEnvelope, faThumbtack, faUser, faShieldAlt, faKey, faBolt, faArchway, faPalette
 		}
 	},
 
@@ -383,6 +385,7 @@ export default defineComponent({
 		this.iconUrl = this.meta.iconUrl;
 		this.logoImageUrl = this.meta.logoImageUrl;
 		this.backgroundImageUrl = this.meta.backgroundImageUrl;
+		this.themeColor = this.meta.themeColor;
 		this.enableEmail = this.meta.enableEmail;
 		this.email = this.meta.email;
 		this.maintainerName = this.meta.maintainerName;
@@ -549,6 +552,7 @@ export default defineComponent({
 				iconUrl: this.iconUrl,
 				logoImageUrl: this.logoImageUrl,
 				backgroundImageUrl: this.backgroundImageUrl,
+				themeColor: this.themeColor === '' ? null : this.themeColor,
 				maintainerName: this.maintainerName,
 				maintainerEmail: this.maintainerEmail,
 				maxNoteTextLength: this.maxNoteTextLength,

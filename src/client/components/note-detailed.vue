@@ -46,14 +46,7 @@
 					<!-- <span class="localOnly" v-if="note.localOnly"><Fa :icon="faBiohazard"/></span> -->
 				</div>
 				<div class="username"><MkAcct :user="appearNote.user"/></div>
-				<div v-if="showTicker && !appearNote.user.host" class="instance-ticker groundpolis">
-					<img src="/favicon.ico" alt="favicon" class="favicon"/>
-					<span v-text="meta.name && meta.name !== host ? `${meta.name} (${host})` : host"/>
-				</div>
-				<div v-else-if="showTicker && instance" class="instance-ticker" :class="instance.softwareName">
-					<img :src="instance.iconUrl" alt="favicon" class="favicon"/>
-					<span v-text="instance.name && instance.name !== instance.host ? `${instance.name} (${instance.host})` : instance.host"/>
-				</div>
+				<MkInstanceTicker v-if="showTicker" class="ticker" :instance="appearNote.user.instance"/>
 			</div>
 		</header>
 		<div class="main">
@@ -193,6 +186,7 @@ export default defineComponent({
 		XPoll,
 		MkUrlPreview: defineAsyncComponent(() => import('@/components/url-preview.vue')),
 		VisibilityIcon,
+		MkInstanceTicker: defineAsyncComponent(() => import('@/components/instance-ticker.vue')),
 	},
 
 	inject: {
