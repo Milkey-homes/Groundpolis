@@ -877,6 +877,7 @@ deleteAccountConfirm: "Are you sure that you want to delete this account?"
 createdAt: "Created at"
 invitationRequiredToRegister: "This server is currently invitation only. Only those with an invitation code can register."
 themeColor: "Theme Color"
+preferTickerSoftwareColor: "Prefer Software Color on instance ticker"
 
 _template:
   edit: "Edit Template..."

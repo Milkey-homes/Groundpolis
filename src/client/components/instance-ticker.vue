@@ -7,7 +7,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { instanceName } from '@/config';
+import { instanceName, software } from '@/config';
+import { defaultStore } from '@/store';
 
 export default defineComponent({
 	props: {
@@ -22,7 +23,8 @@ export default defineComponent({
 			info: this.instance || {
 				faviconUrl: '/favicon.ico',
 				name: instanceName,
-				themeColor: (document.querySelector('meta[name="theme-color-orig"]') as HTMLMetaElement)?.content
+				themeColor: (document.querySelector('meta[name="theme-color-orig"]') as HTMLMetaElement)?.content,
+				softwareName: software,
 			}
 		}
 	},
@@ -62,7 +64,13 @@ export default defineComponent({
 	      default:
 	        softwareColor = '#777777';
     	}
-			const themeColor = this.info.themeColor || softwareColor;
+			const preferSoftwareColor = this.$store.reactiveState.preferTickerSoftwareColor.value;
+			let themeColor = '';
+			if (preferSoftwareColor) {
+				themeColor = softwareColor;
+			} else {
+				themeColor = this.info.themeColor || softwareColor;
+			}
 			return {
 				background: `linear-gradient(90deg, ${themeColor}, ${themeColor}00)`
 			};

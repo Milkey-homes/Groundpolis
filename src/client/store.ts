@@ -393,6 +393,11 @@ export const defaultStore = markRaw(new Storage('base', {
 		default: false
 	},
 
+	preferTickerSoftwareColor: {
+		where: 'device',
+		default: false
+	},
+
 	//#endregion
 }));
 

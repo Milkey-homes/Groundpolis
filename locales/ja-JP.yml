@@ -917,6 +917,7 @@ leaveGroup: "グループから抜ける"
 leaveGroupConfirm: "「{name}」から抜けますか？"
 notSpecifiedMentionWarning: "宛先に含まれていないメンションがあります"
 themeColor: "テーマカラー"
+preferTickerSoftwareColor: "インスタンスティッカーにソフトウェアカラーを採用して表示する"
 
 _template:
   edit: "定型文を編集…"
