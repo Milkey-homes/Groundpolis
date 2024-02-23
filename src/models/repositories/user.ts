@@ -202,6 +202,14 @@ export class UserRepository extends Repository<User> {
 			isVerified: user.isVerified || falsy,
 			isPremium: user.isPremium || falsy,
 			isLocked: user.isLocked,
+			instance: user.host ? Instances.findOne({ host: user.host }).then(instance => instance ? {
+				name: instance.name,
+				softwareName: instance.softwareName,
+				softwareVersion: instance.softwareVersion,
+				iconUrl: instance.iconUrl,
+				faviconUrl: instance.faviconUrl,
+				themeColor: instance.themeColor,
+			} : undefined) : undefined,
 
 			// カスタム絵文字添付
 			emojis: user.emojis.length > 0 ? Emojis.find({

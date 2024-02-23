@@ -1,6 +1,7 @@
 import { faUpload, faCloud, faLink } from '@fortawesome/free-solid-svg-icons';
 import * as os from '@/os';
 import { i18n } from '@/i18n';
+import { defaultStore } from '@/store';
 
 export function selectFile(src: any, label: string | null, multiple = false) {
 	return new Promise((res, rej) => {
@@ -10,7 +11,7 @@ export function selectFile(src: any, label: string | null, multiple = false) {
 			input.multiple = multiple;
 			input.onchange = () => {
 				if (!input.files) return;
-				const promises = Array.from(input.files).map(file => os.upload(file));
+				const promises = Array.from(input.files).map(file => os.upload(file, defaultStore.state.uploadFolder));
 
 				Promise.all(promises).then(driveFiles => {
 					res(multiple ? driveFiles : driveFiles[0]);
@@ -59,6 +60,7 @@ export function selectFile(src: any, label: string | null, multiple = false) {
 
 				os.api('drive/files/upload_from_url', {
 					url: url,
+					folderId: defaultStore.state.uploadFolder,
 					marker
 				});
 

@@ -77,6 +77,11 @@ const nodeinfo2 = async () => {
 			enableEmail: meta.enableEmail,
 			enableServiceWorker: meta.enableServiceWorker,
 			proxyAccountName: proxyAccount ? proxyAccount.username : null,
+			themeColor: meta.themeColor || '#ed6c8e',
+			upstream: {
+				name: 'misskey',
+				version: '12.69.0',
+			},
 		}
 	};
 };

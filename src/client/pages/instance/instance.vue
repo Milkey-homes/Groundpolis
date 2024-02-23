@@ -103,7 +103,6 @@
 		<div class="operations section">
 			<span class="label">{{ $ts.operations }}</span>
 			<MkSwitch v-model:value="isSuspended" class="switch">{{ $ts.stopActivityDelivery }}</MkSwitch>
-			<MkSwitch :value="isBlocked" class="switch" @update:value="changeBlock">{{ $ts.blockThisInstance }}</MkSwitch>
 			<details>
 				<summary>{{ $ts.deleteAllFiles }}</summary>
 				<MkButton @click="deleteAllFiles()" style="margin: 0.5em 0 0.5em 0;"><Fa :icon="faTrashAlt"/> {{ $ts.deleteAllFiles }}</MkButton>
@@ -203,14 +202,6 @@ export default defineComponent({
 				null;
 
 			return stats;
-		},
-
-		meta() {
-			return this.$instance;
-		},
-
-		isBlocked() {
-			return this.meta && this.meta.blockedHosts && this.meta.blockedHosts.includes(this.instance.host);
 		}
 	},
 
@@ -252,12 +243,6 @@ export default defineComponent({
 	methods: {
 		setChart(el) {
 			this.canvas = el;
-		},
-
-		changeBlock(e) {
-			os.api('admin/update-meta', {
-				blockedHosts: this.isBlocked ? this.meta.blockedHosts.concat([this.instance.host]) : this.meta.blockedHosts.filter(x => x !== this.instance.host)
-			});
 		},
 
 		setSrc(src) {

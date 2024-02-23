@@ -10,8 +10,8 @@ html(style="--bg: #222222; --fg: white")
 		meta(charset='utf-8')
 		meta(name='application-name' content='Groundpolis')
 		meta(name='referrer' content='origin')
-		meta(name='theme-color' content='#ED6C8E')
-		meta(name='theme-color-orig' content='#ED6C8E')
+		meta(name='theme-color' content= themeColor || '#ED6C8E')
+		meta(name='theme-color-orig' content= themeColor || '#ED6C8E')
 		meta(property='og:site_name' content= instanceName || 'Groundpolis')
 		meta(name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover')
 		link(rel='icon' href= icon || '/favicon.ico')
@@ -43,5 +43,5 @@ html(style="--bg: #222222; --fg: white")
 
 		script
 			include ../boot.js
-				
+
 		block content

@@ -12,7 +12,7 @@ import { extractApHashtags } from './tag';
 import { apLogger } from '../logger';
 import { Note } from '../../../models/entities/note';
 import { updateUsertags } from '../../../services/update-hashtag';
-import { Users, UserNotePinings, Instances, DriveFiles, Followings, UserProfiles, UserPublickeys } from '../../../models';
+import { Users, Instances, DriveFiles, Followings, UserProfiles, UserPublickeys } from '../../../models';
 import { User, IRemoteUser } from '../../../models/entities/user';
 import { Emoji } from '../../../models/entities/emoji';
 import { UserNotePining } from '../../../models/entities/user-note-pining';
@@ -119,6 +119,10 @@ export async function fetchPerson(uri: string, resolver?: Resolver): Promise<Use
 export async function createPerson(uri: string, resolver?: Resolver): Promise<User> {
 	if (typeof uri !== 'string') throw new Error('uri is not string');
 
+	if (uri.startsWith(config.url)) {
+		throw { statusCode: 400 };
+	}
+
 	if (resolver == null) resolver = new Resolver();
 
 	const object = await resolver.resolve(uri) as any;
@@ -139,7 +143,7 @@ export async function createPerson(uri: string, resolver?: Resolver): Promise<Us
 
 	const tags = extractApHashtags(person.tag).map(tag => normalizeForSearch(tag)).splice(0, 32);
 
-	const isBot = object.type === 'Service';
+	const isBot = object.type === 'Service' || object.type === 'Application';
 
 	const bday = person['vcard:bday']?.match(/^\d{4}-\d{2}-\d{2}/);
 
@@ -345,7 +349,7 @@ export async function updatePerson(uri: string, resolver?: Resolver | null, hint
 		emojis: emojiNames,
 		name: person.name,
 		tags,
-		isBot: object.type === 'Service',
+		isBot: object.type === 'Service' || object.type === 'Application',
 		isCat: (person as any).isCat === true,
 		isLocked: !!person.manuallyApprovesFollowers,
 		sex: gpSexMap[sex],
@@ -489,18 +493,19 @@ export async function updateFeatured(userId: User['id'], resolver?: Resolver) {
 		.slice(0, 5)
 		.map(item => limit(() => resolveNote(item, resolver))));
 
-	// delete
-	await UserNotePinings.delete({ userId: user.id });
+	await getConnection().transaction(async transactionalEntityManager => {
+		await transactionalEntityManager.delete(UserNotePining, { userId: user.id });
 
-	// とりあえずidを別の時間で生成して順番を維持
-	let td = 0;
-	for (const note of featuredNotes.filter(note => note != null)) {
-		td -= 1000;
-		UserNotePinings.save({
-			id: genId(new Date(Date.now() + td)),
-			createdAt: new Date(),
-			userId: user.id,
-			noteId: note!.id
-		} as UserNotePining);
-	}
+		// とりあえずidを別の時間で生成して順番を維持
+		let td = 0;
+		for (const note of featuredNotes.filter(note => note != null)) {
+			td -= 1000;
+			transactionalEntityManager.insert(UserNotePining, {
+				id: genId(new Date(Date.now() + td)),
+				createdAt: new Date(),
+				userId: user.id,
+				noteId: note!.id
+			});
+		}
+	});
 }

@@ -60,6 +60,7 @@ export class DriveFileRepository extends Repository<DriveFile> {
 		const { sum } = await this
 			.createQueryBuilder('file')
 			.where('file.userId = :id', { id: id })
+			.andWhere('file.isLink = FALSE')
 			.select('SUM(file.size)', 'sum')
 			.getRawOne();
 
@@ -70,6 +71,7 @@ export class DriveFileRepository extends Repository<DriveFile> {
 		const { sum } = await this
 			.createQueryBuilder('file')
 			.where('file.userHost = :host', { host: toPuny(host) })
+			.andWhere('file.isLink = FALSE')
 			.select('SUM(file.size)', 'sum')
 			.getRawOne();
 
@@ -80,6 +82,7 @@ export class DriveFileRepository extends Repository<DriveFile> {
 		const { sum } = await this
 			.createQueryBuilder('file')
 			.where('file.userHost IS NULL')
+			.andWhere('file.isLink = FALSE')
 			.select('SUM(file.size)', 'sum')
 			.getRawOne();
 
@@ -90,6 +93,7 @@ export class DriveFileRepository extends Repository<DriveFile> {
 		const { sum } = await this
 			.createQueryBuilder('file')
 			.where('file.userHost IS NOT NULL')
+			.andWhere('file.isLink = FALSE')
 			.select('SUM(file.size)', 'sum')
 			.getRawOne();
 

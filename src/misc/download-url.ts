@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as stream from 'stream';
 import * as util from 'util';
 import got, * as Got from 'got';
-import { httpAgent, httpsAgent } from './fetch';
+import { httpAgent, httpsAgent, StatusError } from './fetch';
 import config from '../config';
 import * as chalk from 'chalk';
 import Logger from '../services/logger';
@@ -18,6 +18,7 @@ export async function downloadUrl(url: string, path: string) {
 
 	const timeout = 30 * 1000;
 	const operationTimeout = 60 * 1000;
+	const maxSize = config.maxFileSize || 262144000;
 
 	const req = got.stream(url, {
 		headers: {
@@ -36,6 +37,7 @@ export async function downloadUrl(url: string, path: string) {
 			http: httpAgent,
 			https: httpsAgent,
 		},
+		http2: false,	// default
 		retry: 0,
 	}).on('response', (res: Got.Response) => {
 		if ((process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') && !config.proxy && res.ip) {
@@ -44,17 +46,31 @@ export async function downloadUrl(url: string, path: string) {
 				req.destroy();
 			}
 		}
-	}).on('error', (e: any) => {
-		if (e.name === 'HTTPError') {
-			const statusCode = e.response?.statusCode;
-			const statusMessage = e.response?.statusMessage;
-			e.name = `StatusError`;
-			e.statusCode = statusCode;
-			e.message = `${statusCode} ${statusMessage}`;
+
+		const contentLength = res.headers['content-length'];
+		if (contentLength != null) {
+			const size = Number(contentLength);
+			if (size > maxSize) {
+				logger.warn(`maxSize exceeded (${size} > ${maxSize}) on response`);
+				req.destroy();
+			}
+		}
+	}).on('downloadProgress', (progress: Got.Progress) => {
+		if (progress.transferred > maxSize) {
+			logger.warn(`maxSize exceeded (${progress.transferred} > ${maxSize}) on downloadProgress`);
+			req.destroy();
 		}
 	});
 
-	await pipeline(req, fs.createWriteStream(path));
+	try {
+		await pipeline(req, fs.createWriteStream(path));
+	} catch (e) {
+		if (e instanceof Got.HTTPError) {
+			throw new StatusError(`${e.response.statusCode} ${e.response.statusMessage}`, e.response.statusCode, e.response.statusMessage);
+		} else {
+			throw e;
+		}
+	}
 
 	logger.succ(`Download finished: ${chalk.cyan(url)}`);
 }

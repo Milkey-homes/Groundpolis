@@ -29,7 +29,7 @@
 				<MkSwitch v-if="user.host == null && $i.isAdmin && (moderator || !user.isAdmin)" @update:value="toggleModerator" v-model:value="moderator">{{ $ts.moderator }}</MkSwitch>
 				<MkSwitch @update:value="toggleVerify" v-model:value="verified">{{ $ts.verify }}</MkSwitch>
 				<MkSwitch @update:value="togglePremium" v-model:value="premium">{{ $ts.premium }}</MkSwitch>
-				<MkSwitch @update:value="toggleSilence" v-model:value="silenced">{{ $ts.silence }}</MkSwitch>
+				<MkSwitch @update:value="toggleSilence" v-model:value="silenced" :disabled="user.isAdmin && !user.isSilenced">{{ $ts.silence }}</MkSwitch>
 				<MkSwitch @update:value="toggleSuspend" v-model:value="suspended" :disabled="(user.isModerator || user.isAdmin) && !user.isSuspended">{{ $ts.suspend }}</MkSwitch>
 			</div>
 		</div>

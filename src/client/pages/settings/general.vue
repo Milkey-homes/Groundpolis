@@ -74,12 +74,15 @@
 		<option value="veryLarge"><span style="font-size: 20px;">Aa</span></option>
 	</FormRadios>
 
-	<FormSelect v-model:value="instanceTicker">
-		<template #label>{{ $ts.instanceTicker }}</template>
-		<option value="none">{{ $ts._instanceTicker.none }}</option>
-		<option value="remote">{{ $ts._instanceTicker.remote }}</option>
-		<option value="always">{{ $ts._instanceTicker.always }}</option>
-	</FormSelect>
+	<FormGroup>
+		<FormSelect v-model:value="instanceTicker">
+			<template #label>{{ $ts.instanceTicker }}</template>
+			<option value="none">{{ $ts._instanceTicker.none }}</option>
+			<option value="remote">{{ $ts._instanceTicker.remote }}</option>
+			<option value="always">{{ $ts._instanceTicker.always }}</option>
+		</FormSelect>
+		<FormSwitch v-model:value="preferTickerSoftwareColor">{{ $ts.preferTickerSoftwareColor }}</FormSwitch>
+	</FormGroup>
 
 	<FormSelect v-model:value="nsfw">
 		<template #label>{{ $ts.nsfw }}</template>
@@ -228,6 +231,7 @@ export default defineComponent({
 		showVoteConfirm: defaultStore.makeGetterSetter('showVoteConfirm'),
 		aiChanMode: defaultStore.makeGetterSetter('aiChanMode'),
 		renoteButtonMode: defaultStore.makeGetterSetter('renoteButtonMode'),
+		preferTickerSoftwareColor: defaultStore.makeGetterSetter('preferTickerSoftwareColor'),
 	},
 
 	watch: {

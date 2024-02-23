@@ -5,6 +5,8 @@ import { IImage, convertToPng, convertToJpeg } from '../../services/drive/image-
 import { createTemp } from '../../misc/create-temp';
 import { downloadUrl } from '../../misc/download-url';
 import { detectType } from '../../misc/get-file-info';
+import { StatusError } from '../../misc/fetch';
+import { FILE_TYPE_BROWSERSAFE } from '../../const';
 
 export async function proxyMedia(ctx: Koa.Context) {
 	const url = 'url' in ctx.query ? ctx.query.url : 'https://' + ctx.params.url;
@@ -17,7 +19,7 @@ export async function proxyMedia(ctx: Koa.Context) {
 
 		const { mime, ext } = await detectType(path);
 
-		if (!mime.startsWith('image/')) throw 403;
+		if (!FILE_TYPE_BROWSERSAFE.includes(mime)) throw 403;
 
 		let image: IImage;
 
@@ -37,9 +39,9 @@ export async function proxyMedia(ctx: Koa.Context) {
 		ctx.set('Cache-Control', 'max-age=31536000, immutable');
 		ctx.body = image.data;
 	} catch (e) {
-		serverLogger.error(e);
+		serverLogger.error(`${e}`);
 
-		if (typeof e.statusCode === 'number' && e.statusCode >= 400 && e.statusCode < 500) {
+		if (e instanceof StatusError && e.isClientError) {
 			ctx.status = e.statusCode;
 		} else {
 			ctx.status = 500;

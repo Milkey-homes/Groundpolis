@@ -23,10 +23,13 @@
 				<div class="_card" v-for="group in items" :key="group.id">
 					<div class="_title">{{ group.name }}</div>
 					<div class="_content"><MkAvatars :user-ids="group.userIds"/></div>
+					<div class="_footer">
+						<MkButton inline @click="leaveGroup(group)">{{ $ts.leaveGroup }}</MkButton>
+					</div>
 				</div>
 			</MkPagination>
 		</div>
-	
+
 		<div class="_content" v-else-if="tab === 'invites'">
 			<MkPagination :pagination="invitationPagination" #default="{items}" ref="invitations">
 				<div class="_card" v-for="invitation in items" :key="invitation.id">
@@ -115,6 +118,20 @@ export default defineComponent({
 			}).then(() => {
 				this.$refs.invitations.reload();
 			});
+		},
+		async leaveGroup(group) {
+			const { canceled } = await os.dialog({
+				type: 'warning',
+				text: this.$t('leaveGroupConfirm', { name: group.name }),
+				showCancelButton: true,
+			});
+			if (canceled) return;
+
+			await os.api('users/groups/leave', {
+				groupId: group.id,
+			});
+
+			this.$router.push('/my/groups');
 		}
 	}
 });

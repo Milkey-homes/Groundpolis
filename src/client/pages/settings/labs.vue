@@ -2,9 +2,6 @@
 <FormBase>
 	<div class="_formItem">
 		<div class="_formLabel" style="font-size: 100%">{{ $ts._labs.description }}</div>
-		<div class="_formLabel" style="font-size: 100%">
-			<MkLink url="https://discord.gg/z2C7uG62fC" class="at">{{ $ts._labs.review }}</MkLink>
-		</div>
 	</div>
 
 	<!-- <div class="_formItem _formPanel" style="padding: 16px;">

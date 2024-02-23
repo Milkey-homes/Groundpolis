@@ -22,6 +22,7 @@ import * as S3 from 'aws-sdk/clients/s3';
 import { getS3 } from './s3';
 import * as sharp from 'sharp';
 import { IdentifiableError } from '../../misc/identifiable-error';
+import { FILE_TYPE_BROWSERSAFE } from '../../const';
 
 const logger = driveLogger.createSubLogger('register', 'yellow');
 
@@ -243,6 +244,7 @@ export async function generateAlts(path: string, type: string, generateWeb: bool
  */
 async function upload(key: string, stream: fs.ReadStream | Buffer, type: string, filename?: string) {
 	if (type === 'image/apng') type = 'image/png';
+	if (!FILE_TYPE_BROWSERSAFE.includes(type)) type = 'application/octet-stream';
 
 	const meta = await fetchMeta();
 
@@ -269,7 +271,8 @@ async function upload(key: string, stream: fs.ReadStream | Buffer, type: string,
 
 async function deleteOldFile(user: IRemoteUser) {
 	const q = DriveFiles.createQueryBuilder('file')
-		.where('file.userId = :userId', { userId: user.id });
+		.where('file.userId = :userId', { userId: user.id })
+		.andWhere('file.isLink = FALSE');
 
 	if (user.avatarId) {
 		q.andWhere('file.id != :avatarId', { avatarId: user.avatarId });

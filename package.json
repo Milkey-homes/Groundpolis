@@ -1,6 +1,6 @@
 {
 	"name": "groundpolis-milkey",
-	"version": "2022.07.03-milkey-2.8",
+	"version": "2022.07.03-milkey-2.9",
 	"private": true,
 	"author": "Xeltica <xeltica@gmail.com> , Minemu <minemu398@outlook.jp> , Azuki⪥ <cluikeit_31701@outlook.com> , Remito <remitocat@gmail.com> , atsu1125 <atsuchan@atsuchan.page>",
 	"contributors": [
@@ -128,7 +128,8 @@
 		"bcryptjs": "2.4.3",
 		"blurhash": "1.1.3",
 		"bootstrap-icons-vue": "0.8.0",
-		"bull": "4.10.1",
+		"bull": "4.10.4",
+		"cacheable-lookup": "6.0.0",
 		"cafy": "15.2.1",
 		"cbor": "8.1.0",
 		"chalk": "4.1.2",
@@ -157,6 +158,7 @@
 		"gulp-terser": "2.1.0",
 		"gulp-typescript": "6.0.0-alpha.1",
 		"hard-source-webpack-plugin": "0.13.1",
+		"hpagent": "0.1.2",
 		"html-minifier": "4.0.0",
 		"http-proxy-agent": "5.0.0",
 		"http-signature": "1.3.6",
@@ -182,7 +184,6 @@
 		"koa-slow": "2.1.0",
 		"koa-views": "8.0.0",
 		"langmap": "0.0.16",
-		"lookup-dns-cache": "2.1.0",
 		"markdown-it": "12.3.2",
 		"markdown-it-anchor": "8.4.1",
 		"matter-js": "0.18.0",

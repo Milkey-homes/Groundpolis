@@ -41,6 +41,11 @@ export const meta = {
 			validator: $.optional.nullable.str,
 			default: null
 		},
+
+		userId: {
+			validator: $.optional.nullable.type(ID),
+			default: null
+		},
 	}
 };
 
@@ -63,6 +68,10 @@ export default define(meta, async (ps, me) => {
 		} else {
 			query.andWhere('file.type = :type', { type: ps.type });
 		}
+	}
+
+	if (ps.userId) {
+		query.andWhere('file.userId = :userId', { userId: ps.userId });
 	}
 
 	const files = await query.take(ps.limit!).getMany();

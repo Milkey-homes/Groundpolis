@@ -239,7 +239,8 @@ router.get(['/@:user', '/@:user/:sub'], async (ctx, next) => {
 			user, profile, me,
 			sub: ctx.params.sub,
 			instanceName: meta.name || 'Groundpolis',
-			icon: meta.iconUrl
+			icon: meta.iconUrl,
+			themeColor: meta.themeColor,
 		});
 		setCache(ctx, 'public, max-age=30');
 	} else if (!host) {
@@ -282,7 +283,8 @@ router.get('/notes/:note', async ctx => {
 			// TODO: Let locale changeable by instance setting
 			summary: getNoteSummary(_note, locales['ja-JP']),
 			instanceName: meta.name || 'Groundpolis',
-			icon: meta.iconUrl
+			icon: meta.iconUrl,
+			themeColor: meta.themeColor,
 		});
 
 		if (['public', 'home'].includes(note.visibility)) {
@@ -319,7 +321,8 @@ router.get('/@:user/pages/:page', async ctx => {
 		await ctx.render('page', {
 			page: _page,
 			profile,
-			instanceName: meta.name || 'Groundpolis'
+			instanceName: meta.name || 'Groundpolis',
+			themeColor: meta.themeColor,
 		});
 
 		if (['public'].includes(page.visibility)) {
@@ -348,7 +351,8 @@ router.get('/clips/:clip', async ctx => {
 		await ctx.render('clip', {
 			clip: _clip,
 			profile,
-			instanceName: meta.name || 'Misskey'
+			instanceName: meta.name || 'Misskey',
+			themeColor: meta.themeColor,
 		});
 
 		ctx.set('Cache-Control', 'public, max-age=180');
@@ -370,7 +374,8 @@ router.get('/channels/:channel', async ctx => {
 		const meta = await fetchMeta();
 		await ctx.render('channel', {
 			channel: _channel,
-			instanceName: meta.name || 'Misskey'
+			instanceName: meta.name || 'Misskey',
+			themeColor: meta.themeColor,
 		});
 
 		ctx.set('Cache-Control', 'public, max-age=180');
@@ -434,6 +439,7 @@ const renderBase = async (ctx: Koa.Context) => {
 		desc: meta.description,
 		icon: meta.iconUrl,
 		status: ctx.status,
+		themeColor: meta.themeColor,
 	});
 }
 
