@@ -5,7 +5,7 @@ import { createPerson } from '../../../../remote/activitypub/models/person';
 import { createNote } from '../../../../remote/activitypub/models/note';
 import Resolver from '../../../../remote/activitypub/resolver';
 import { ApiError } from '../../error';
-import { extractDbHost } from '../../../../misc/convert-host';
+import { extractDbHost, isSelfOrigin } from '../../../../misc/convert-host';
 import { Users, Notes } from '../../../../models';
 import { Note } from '../../../../models/entities/note';
 import { User } from '../../../../models/entities/user';
@@ -53,7 +53,7 @@ export default define(meta, async (ps) => {
  */
 async function fetchAny(uri: string) {
 	// URIがこのサーバーを指しているなら、ローカルユーザーIDとしてDBからフェッチ
-	if (uri.startsWith(config.url + '/')) {
+	if (isSelfOrigin(uri)) {
 		const parts = uri.split('/');
 		const id = parts.pop();
 		const type = parts.pop();
