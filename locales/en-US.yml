@@ -878,6 +878,7 @@ createdAt: "Created at"
 invitationRequiredToRegister: "This server is currently invitation only. Only those with an invitation code can register."
 themeColor: "Theme Color"
 preferTickerSoftwareColor: "Prefer Software Color on instance ticker"
+typeToConfirm: "Please enter {x} to confirm"
 
 _template:
   edit: "Edit Template..."
