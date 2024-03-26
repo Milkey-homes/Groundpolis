@@ -5,6 +5,7 @@ import fetch from 'node-fetch';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import config from '../config';
 import { URL } from 'url';
+import { isValidUrl } from './is-valid-url';
 
 export async function getJson(url: string, accept = 'application/json, */*', timeout = 10000, headers?: Record<string, string>) {
 	const res = await getResponse({
@@ -34,8 +35,19 @@ export async function getHtml(url: string, accept = 'text/html, */*', timeout = 
 	return await res.text();
 }
 
-export async function getResponse(args: { url: string, method: string, body?: string, headers: Record<string, string>, timeout?: number, size?: number }) {
-	const timeout = args?.timeout || 10 * 1000;
+export async function getResponse(args: {
+	url: string;
+	method: string;
+	body?: string;
+	headers: Record<string, string>;
+	timeout?: number;
+	size?: number;
+}) {
+	if (!isValidUrl(args.url)) {
+		throw new StatusError('Invalid URL', 400);
+	}
+
+	const timeout = args.timeout || 10 * 1000;
 
 	const controller = new AbortController();
 	setTimeout(() => {
@@ -54,6 +66,10 @@ export async function getResponse(args: { url: string, method: string, body?: st
 
 	if (!res.ok) {
 		throw new StatusError(`${res.status} ${res.statusText}`, res.status, res.statusText);
+	}
+
+	if (res.redirected && !isValidUrl(res.url)) {
+		throw new StatusError('Invalid URL', 400);
 	}
 
 	return res;

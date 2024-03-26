@@ -6,6 +6,7 @@ import { getResponse } from '../../misc/fetch';
 import { createSignedPost, createSignedGet } from './ap-request';
 import type { Response } from 'node-fetch';
 import { IObject } from './type';
+import { isValidUrl } from '../../misc/is-valid-url';
 
 export default async (user: ILocalUser, url: string, object: any) => {
 	const body = JSON.stringify(object);
@@ -65,6 +66,10 @@ export async function signedGet(url: string, user: ILocalUser) {
 }
 
 export async function apGet(url: string, user?: ILocalUser): Promise<IObject> {
+	if (!isValidUrl(url)) {
+		throw new StatusError('Invalid URL', 400);
+	}
+
 	let res: Response;
 
 	if (user != null) {
