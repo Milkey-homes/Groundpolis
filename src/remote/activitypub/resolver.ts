@@ -1,5 +1,4 @@
 import config from '../../config';
-import { getJson } from '../../misc/fetch';
 import { ILocalUser } from '../../models/entities/user';
 import { getInstanceActor } from '../../services/instance-actor';
 import { apGet } from './request';
@@ -15,7 +14,7 @@ import renderQuestion from './renderer/question';
 import renderCreate from './renderer/create';
 import { renderActivity } from './renderer/index';
 import renderFollow from './renderer/follow';
-import { In, IsNull, Not } from 'typeorm';
+import { IsNull, Not } from 'typeorm';
 
 export default class Resolver {
 	private history: Set<string>;
@@ -96,67 +95,61 @@ export default class Resolver {
 		return object;
 	}
 
-	private resolveLocal(url: string): Promise<IObject> {
+	private async resolveLocal(url: string): Promise<IObject> {
 		const parsed = parseUri(url);
 		if (!parsed.local) throw new Error('resolveLocal: not local');
 
 		switch (parsed.type) {
 			case 'notes':
-				return Notes.findOneOrFail({ id: parsed.id })
-				.then(note => {
-					if (parsed.rest === 'activity') {
-						// this refers to the create activity and not the note itself
-						return renderActivity(renderCreate(renderNote(note), note));
-					} else {
-						return renderNote(note);
-					}
-				});
+				const note = await Notes.findOneOrFail({ id: parsed.id });
+				if (parsed.rest === 'activity') {
+					// this refers to the create activity and not the note itself
+					return renderActivity(renderCreate(renderNote(note), note));
+				} else {
+					return renderNote(note);
+				}
 			case 'users':
-				return Users.findOneOrFail({ id: parsed.id })
-				.then(user => renderPerson(user as ILocalUser));
+				const user = await Users.findOneOrFail({ id: parsed.id });
+				return await renderPerson(user as ILocalUser);
 			case 'questions':
 				// Polls are indexed by the note they are attached to.
-				return Promise.all([
+				const [pollNote, poll] = await Promise.all([
 					Notes.findOneOrFail({ id: parsed.id }),
 					Polls.findOneOrFail({ noteId: parsed.id }),
-				]).then(([note, poll]) =>
-					renderQuestion({ id: note.userId }, note, poll),
-				);
+				]);
+				return await renderQuestion({ id: pollNote.userId }, pollNote, poll);
 			case 'likes':
-				return NoteReactions.findOneOrFail({ id: parsed.id }).then(
-					(reaction) => renderActivity(renderLike(reaction, { uri: null })),
-				);
+				const reaction = await NoteReactions.findOneOrFail({ id: parsed.id });
+				return renderActivity(renderLike(reaction, { uri: null }));
 			case 'follows':
 				// if rest is a <followee id>
 				if (parsed.rest != null && /^\w+$/.test(parsed.rest)) {
-					return Promise.all(
-						[parsed.id, parsed.rest].map((id) => Users.findOneOrFail({ id })),
-					).then(([follower, followee]) =>
-						renderActivity(renderFollow(follower, followee, url)),
-					);
+					const [follower, followee] = await Promise.all(
+						[parsed.id, parsed.rest].map((id) => Users.findOneOrFail({ id })));
+					return renderActivity(renderFollow(follower, followee, url));
 				}
 
 				// Another situation is there is only requestId, then obtained object from database.
-				const followRequest = FollowRequests.findOne({
+				const followRequest = await FollowRequests.findOne({
 					id: parsed.id,
 				});
 				if (followRequest == null) {
-					throw new Error("resolveLocal: invalid follow URI");
+					throw new Error('resolveLocal: invalid follow URI');
 				}
-				const follower = Users.findOne({
+				const follower = await Users.findOne({
 					id: followRequest.followerId,
 					host: IsNull(),
 				});
-				const followee = Users.findOne({
+				const followee = await Users.findOne({
 					id: followRequest.followeeId,
 					host: Not(IsNull()),
 				});
 				if (follower == null || followee == null) {
-					throw new Error("resolveLocal: invalid follow URI");
+					throw new Error('resolveLocal: invalid follow URI');
 				}
 				return renderActivity(renderFollow(follower, followee, url));
 			default:
-				throw new Error(`resolveLocal: type ${type} unhandled`);
+				throw new Error(`resolveLocal: type ${parsed.type} unhandled`);
 		}
 	}
 }
