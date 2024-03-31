@@ -6,6 +6,8 @@ import { getResponse } from '../../misc/fetch';
 import { createSignedPost, createSignedGet } from './ap-request';
 import type { Response } from 'node-fetch';
 import { IObject } from './type';
+import { isValidUrl } from '../../misc/is-valid-url';
+import { apLogger } from './logger';
 
 export default async (user: ILocalUser, url: string, object: any) => {
 	const body = JSON.stringify(object);
@@ -36,8 +38,9 @@ export default async (user: ILocalUser, url: string, object: any) => {
 
 /**
  * Get ActivityPub object
- * @param user http-signature user
  * @param url URL to fetch
+ * @param user http-signature user
+ * @param redirects whether or not to accept redirects
  */
 export async function signedGet(url: string, user: ILocalUser) {
 	const keypair = await UserKeypairs.findOne({
@@ -64,7 +67,15 @@ export async function signedGet(url: string, user: ILocalUser) {
 	return await res.json();
 }
 
-export async function apGet(url: string, user?: ILocalUser): Promise<IObject> {
+export async function apGet(
+	url: string,
+	user?: ILocalUser,
+	redirects: boolean = true,
+): Promise<{ finalUrl: string; content: IObject }> {
+	if (!isValidUrl(url)) {
+		throw new StatusError('Invalid URL', 400);
+	}
+
 	let res: Response;
 
 	if (user != null) {
@@ -86,7 +97,15 @@ export async function apGet(url: string, user?: ILocalUser): Promise<IObject> {
 			url,
 			method: req.request.method,
 			headers: req.request.headers,
+			redirect: redirects ? 'manual' : 'error',
 		});
+
+		if (redirects && [301, 302, 307, 308].includes(res.status)) {
+			const newUrl = res.headers.get('location');
+			if (newUrl == null) throw new Error('apGet got redirect but no target location');
+			apLogger.debug(`apGet is redirecting to ${newUrl}`);
+			return apGet(newUrl, user, false);
+		}
 	} else {
 		res = await getResponse({
 			url,
@@ -96,12 +115,20 @@ export async function apGet(url: string, user?: ILocalUser): Promise<IObject> {
 					'application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
 				"User-Agent": config.userAgent,
 			},
+			redirect: redirects ? 'manual' : 'error',
 		});
+
+		if (redirects && [301, 302, 307, 308].includes(res.status)) {
+			const newUrl = res.headers.get('location');
+			if (newUrl == null) throw new Error('apGet got redirect but no target location');
+			apLogger.debug(`apGet is redirecting to ${newUrl}`);
+			return apGet(newUrl, undefined, false);
+		}
 	}
 
 	const contentType = res.headers.get("content-type");
 	if (contentType == null || !validateContentType(contentType)) {
-		throw new Error("Invalid Content Type");
+		throw new Error(`apGet response had unexpected content-type: ${contentType}`);
 	}
 
 	if (res.body == null) throw new Error("body is null");
@@ -109,7 +136,10 @@ export async function apGet(url: string, user?: ILocalUser): Promise<IObject> {
 	const text = await res.text();
 	if (text.length > 65536) throw new Error("too big result");
 
-	return JSON.parse(text) as IObject;
+	return {
+		finalUrl: res.url,
+		content: JSON.parse(text) as IObject,
+	};
 }
 
 function validateContentType(contentType: string): boolean {

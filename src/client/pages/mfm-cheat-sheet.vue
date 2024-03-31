@@ -33,7 +33,7 @@ export default defineComponent({
 				[ 'hashtag', '#test' ],
 				[ 'url', `https://example.com` ],
 				[ 'link', `[${this.$ts._mfm.dummy}](https://example.com)` ],
-				[ 'emoji', `:${this.$instance.emojis[0].name}:` ],
+				[ 'emoji', this.$instance.emojis.length ? `:${this.$instance.emojis[0].name}:` : `:emojiname:` ],
 				[ 'userEmoji', `:@${this.$i.username}:` ],
 				[ 'bold', `**${this.$ts._mfm.dummy}**` ],
 				[ 'small', `<small>${this.$ts._mfm.dummy}</small>` ],

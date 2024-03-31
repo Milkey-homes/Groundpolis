@@ -62,6 +62,7 @@ import XModalWindow from '@/components/ui/modal-window.vue';
 import Progress from '@/scripts/loading';
 import { acct, userPage } from '../../filters/user';
 import * as os from '@/os';
+import { i18n } from '@/i18n';
 
 export default defineComponent({
 	components: {
@@ -223,16 +224,30 @@ export default defineComponent({
 				text: this.$ts.deleteAccountConfirm,
 			});
 			if (confirm.canceled) return;
-			const process = async () => {
-				await os.api('admin/delete-account', { userId: this.user.id });
-				os.success();
-			};
-			await process().catch(e => {
+			const { canceled, result: username } = await os.dialog({
+				title: i18n.t('typeToConfirm', { x: this.user?.username }),
+				input: {
+					allowEmpty: false
+				}
+			});
+			if (canceled) return;
+			if (username === this.user?.username) {
+				const process = async () => {
+					await os.api('admin/delete-account', { userId: this.user.id });
+					os.success();
+				};
+				await process().catch(e => {
+					os.dialog({
+						type: 'error',
+						text: e.toString()
+					});
+				});
+			} else {
 				os.dialog({
 					type: 'error',
-					text: e.toString()
+					text: 'input not match',
 				});
-			});
+			}
 			await this.refreshUser();
 		},
 

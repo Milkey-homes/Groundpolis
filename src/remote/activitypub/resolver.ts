@@ -1,11 +1,20 @@
 import config from '../../config';
-import { getJson } from '../../misc/fetch';
 import { ILocalUser } from '../../models/entities/user';
 import { getInstanceActor } from '../../services/instance-actor';
 import { apGet } from './request';
 import { IObject, isCollectionOrOrderedCollection, ICollection, IOrderedCollection } from './type';
+import { FollowRequests, Notes, NoteReactions, Polls, Users } from '../../models';
+import { parseUri } from './db-resolver';
 import { fetchMeta } from '../../misc/fetch-meta';
-import { extractDbHost } from '../../misc/convert-host';
+import { extractDbHost, isSelfHost } from '../../misc/convert-host';
+import renderNote from './renderer/note';
+import { renderLike } from './renderer/like';
+import { renderPerson } from './renderer/person';
+import renderQuestion from './renderer/question';
+import renderCreate from './renderer/create';
+import { renderActivity } from './renderer/index';
+import renderFollow from './renderer/follow';
+import { IsNull, Not } from 'typeorm';
 
 export default class Resolver {
 	private history: Set<string>;
@@ -42,6 +51,13 @@ export default class Resolver {
 			return value;
 		}
 
+		if (value.includes('#')) {
+			// URLs with fragment parts cannot be resolved correctly because
+			// the fragment part does not get transmitted over HTTP(S).
+			// Avoid strange behaviour by not trying to resolve these at all.
+			throw new Error(`cannot resolve URL with fragment: ${value}`);
+		}
+
 		if (this.history.has(value)) {
 			throw new Error('cannot resolve already resolved one');
 		}
@@ -52,8 +68,12 @@ export default class Resolver {
 
 		this.history.add(value);
 
-		const meta = await fetchMeta();
 		const host = extractDbHost(value);
+		if (isSelfHost(host)) {
+			return await this.resolveLocal(value);
+		}
+
+		const meta = await fetchMeta();
 		if (meta.blockedHosts.includes(host)) {
 			throw new Error('Instance is blocked');
 		}
@@ -62,7 +82,7 @@ export default class Resolver {
 			this.user = await getInstanceActor();
 		}
 
-		const object = await apGet(value, this.user);
+		const { finalUrl, content: object } = await apGet(value, this.user);
 
 		if (object == null || (
 			Array.isArray(object['@context']) ?
@@ -72,6 +92,81 @@ export default class Resolver {
 			throw new Error('invalid response');
 		}
 
-		return object;
+		if (object.id == null) {
+			throw new Error('Object has no ID');
+		}
+
+		if (finalUrl === object.id) return object;
+
+		if (new URL(finalUrl).host !== new URL(object.id).host) {
+			throw new Error("Object ID host doesn't match final url host");
+		}
+
+		const finalRes = await apGet(object.id, this.user);
+
+		if (finalRes.finalUrl !== finalRes.content.id)
+			throw new Error(
+				"Object ID still doesn't match final URL after second fetch attempt",
+			);
+
+		return finalRes.content;
+	}
+
+	private async resolveLocal(url: string): Promise<IObject> {
+		const parsed = parseUri(url);
+		if (!parsed.local) throw new Error('resolveLocal: not local');
+
+		switch (parsed.type) {
+			case 'notes':
+				const note = await Notes.findOneOrFail({ id: parsed.id });
+				if (parsed.rest === 'activity') {
+					// this refers to the create activity and not the note itself
+					return renderActivity(renderCreate(renderNote(note), note));
+				} else {
+					return renderNote(note);
+				}
+			case 'users':
+				const user = await Users.findOneOrFail({ id: parsed.id });
+				return await renderPerson(user as ILocalUser);
+			case 'questions':
+				// Polls are indexed by the note they are attached to.
+				const [pollNote, poll] = await Promise.all([
+					Notes.findOneOrFail({ id: parsed.id }),
+					Polls.findOneOrFail({ noteId: parsed.id }),
+				]);
+				return await renderQuestion({ id: pollNote.userId }, pollNote, poll);
+			case 'likes':
+				const reaction = await NoteReactions.findOneOrFail({ id: parsed.id });
+				return renderActivity(renderLike(reaction, { uri: null }));
+			case 'follows':
+				// if rest is a <followee id>
+				if (parsed.rest != null && /^\w+$/.test(parsed.rest)) {
+					const [follower, followee] = await Promise.all(
+						[parsed.id, parsed.rest].map((id) => Users.findOneOrFail({ id })));
+					return renderActivity(renderFollow(follower, followee, url));
+				}
+
+				// Another situation is there is only requestId, then obtained object from database.
+				const followRequest = await FollowRequests.findOne({
+					id: parsed.id,
+				});
+				if (followRequest == null) {
+					throw new Error('resolveLocal: invalid follow URI');
+				}
+				const follower = await Users.findOne({
+					id: followRequest.followerId,
+					host: IsNull(),
+				});
+				const followee = await Users.findOne({
+					id: followRequest.followeeId,
+					host: Not(IsNull()),
+				});
+				if (follower == null || followee == null) {
+					throw new Error('resolveLocal: invalid follow URI');
+				}
+				return renderActivity(renderFollow(follower, followee, url));
+			default:
+				throw new Error(`resolveLocal: type ${parsed.type} unhandled`);
+		}
 	}
 }
