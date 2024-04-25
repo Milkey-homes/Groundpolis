@@ -20,8 +20,8 @@ const logger = new Logger('inbox');
 
 // ユーザーのinboxにアクティビティが届いた時の処理
 export default async (job: Bull.Job<InboxJobData>): Promise<string> => {
-	const signature = job.data.signature;	// HTTP-signature
-	const activity = job.data.activity;
+	const signature = job.data.signature; // HTTP-signature
+	let activity = job.data.activity;
 
 	//#region Log
 	const info = Object.assign({}, activity);
@@ -99,6 +99,8 @@ export default async (job: Bull.Job<InboxJobData>): Promise<string> => {
 			if (!verified) {
 				return `skip: LD-Signatureの検証に失敗しました`;
 			}
+
+			activity = await ldSignature.compactToWellKnown(activity);
 
 			// もう一度actorチェック
 			if (authUser.user.uri !== activity.actor) {
