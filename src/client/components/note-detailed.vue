@@ -888,7 +888,7 @@ export default defineComponent({
 		},
 
 		copyLink() {
-			copyToClipboard(`${url}/notes/${this.appearNote.id}`);
+			copyToClipboard(this.appearNote.url || this.appearNote.uri || `${url}/notes/${this.appearNote.id}`);
 			os.success();
 		},
 
