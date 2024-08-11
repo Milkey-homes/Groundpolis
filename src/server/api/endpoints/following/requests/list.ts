@@ -1,5 +1,8 @@
+import $ from 'cafy';
+import { ID } from '../../../../../misc/cafy-id';
 import define from '../../../define';
 import { FollowRequests } from '../../../../../models';
+import { makePaginationQuery } from '../../../common/make-pagination-query';
 
 export const meta = {
 	desc: {
@@ -11,13 +14,31 @@ export const meta = {
 
 	requireCredential: true as const,
 
-	kind: 'read:following'
+	kind: 'read:following',
+
+	params: {
+		limit: {
+			validator: $.optional.num.range(1, 100),
+			default: 10
+		},
+
+		sinceId: {
+			validator: $.optional.type(ID),
+		},
+
+		untilId: {
+			validator: $.optional.type(ID),
+		}
+	},
 };
 
 export default define(meta, async (ps, user) => {
-	const reqs = await FollowRequests.find({
-		followeeId: user.id
-	});
+	const query = makePaginationQuery(FollowRequests.createQueryBuilder('request'), ps.sinceId, ps.untilId)
+		.andWhere('request.followeeId = :meId', { meId: user.id });
 
-	return await Promise.all(reqs.map(req => FollowRequests.pack(req)));
+	const requests = await query
+		.take(ps.limit)
+		.getMany();
+
+	return await Promise.all(requests.map(req => FollowRequests.pack(req)));
 });
