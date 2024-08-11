@@ -229,7 +229,14 @@ export default define(meta, async (ps, user, token) => {
 
 	const profile = await UserProfiles.findOne(user.id).then(ensure);
 
-	if (ps.name !== undefined) updates.name = ps.name;
+	if (ps.name !== undefined) {
+		if (ps.name === null) {
+			updates.name = null;
+		} else {
+			const trimmedName = ps.name.trim();
+			updates.name = trimmedName === '' ? null : trimmedName;
+		}
+	}
 	if (ps.description !== undefined) profileUpdates.description = ps.description;
 	//if (ps.lang !== undefined) updates.lang = ps.lang;
 	if (ps.location !== undefined) profileUpdates.location = ps.location;
