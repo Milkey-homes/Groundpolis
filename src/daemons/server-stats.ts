@@ -46,8 +46,6 @@ export default function() {
 		if (log.length > 200) log.pop();
 	}
 
-	if (config.hideServerInfo) return;
-
 	tick();
 
 	setInterval(tick, interval);
