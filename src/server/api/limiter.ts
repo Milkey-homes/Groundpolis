@@ -1,25 +1,17 @@
 import * as Limiter from 'ratelimiter';
 import limiterDB from '../../db/redis';
-import { IEndpoint } from './endpoints';
-import getAcct from '../../misc/acct/render';
+import { IEndpointMeta } from './endpoints';
 import { User } from '../../models/entities/user';
 import Logger from '../../services/logger';
 
 const logger = new Logger('limiter');
 
-export default (endpoint: IEndpoint, user: User) => new Promise((ok, reject) => {
-	const limitation = endpoint.meta.limit!;
-
-	const key = limitation.hasOwnProperty('key')
-		? limitation.key
-		: endpoint.name;
-
-	const hasShortTermLimit =
-		limitation.hasOwnProperty('minInterval');
+export const limiter = (limitation: IEndpointMeta['limit'] & { key: NonNullable<string> }, actor: string) => new Promise<void>((ok, reject) => {
+	const hasShortTermLimit = typeof limitation.minInterval === 'number';
 
 	const hasLongTermLimit =
-		limitation.hasOwnProperty('duration') &&
-		limitation.hasOwnProperty('max');
+		typeof limitation.duration === 'number' &&
+		typeof limitation.max === 'number';
 
 	if (hasShortTermLimit) {
 		min();
@@ -32,7 +24,7 @@ export default (endpoint: IEndpoint, user: User) => new Promise((ok, reject) => 
 	// Short-term limit
 	function min() {
 		const minIntervalLimiter = new Limiter({
-			id: `${user.id}:${key}:min`,
+			id: `${actor}:${limitation.key}:min`,
 			duration: limitation.minInterval,
 			max: 1,
 			db: limiterDB!
@@ -43,7 +35,7 @@ export default (endpoint: IEndpoint, user: User) => new Promise((ok, reject) => 
 				return reject('ERR');
 			}
 
-			logger.debug(`@${getAcct(user)} ${endpoint.name} min remaining: ${info.remaining}`);
+			logger.debug(`${actor} ${limitation.key} min remaining: ${info.remaining}`);
 
 			if (info.remaining === 0) {
 				reject('BRIEF_REQUEST_INTERVAL');
@@ -60,7 +52,7 @@ export default (endpoint: IEndpoint, user: User) => new Promise((ok, reject) => 
 	// Long term limit
 	function max() {
 		const limiter = new Limiter({
-			id: `${user.id}:${key}`,
+			id: `${actor}:${limitation.key}`,
 			duration: limitation.duration,
 			max: limitation.max,
 			db: limiterDB!
@@ -71,7 +63,7 @@ export default (endpoint: IEndpoint, user: User) => new Promise((ok, reject) => 
 				return reject('ERR');
 			}
 
-			logger.debug(`@${getAcct(user)} ${endpoint.name} max remaining: ${info.remaining}`);
+			logger.debug(`${actor} ${limitation.key} max remaining: ${info.remaining}`);
 
 			if (info.remaining === 0) {
 				reject('RATE_LIMIT_EXCEEDED');

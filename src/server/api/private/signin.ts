@@ -9,6 +9,8 @@ import { genId } from '../../../misc/gen-id';
 import { ensure } from '../../../prelude/ensure';
 import { verifyLogin, hash } from '../2fa';
 import { randomBytes } from 'crypto';
+import { limiter } from '../limiter';
+import { getIpHash } from '../../../misc/get-ip-hash';
 
 export default async (ctx: Koa.Context) => {
 	ctx.set('Access-Control-Allow-Origin', config.url);
@@ -18,6 +20,21 @@ export default async (ctx: Koa.Context) => {
 	const username = body['username'];
 	const password = body['password'];
 	const token = body['token'];
+
+	try {
+		// not more than 1 attempt per second and not more than 10 attempts per hour
+		await limiter({ key: 'signin', duration: 60 * 60 * 1000, max: 10, minInterval: 1000 }, getIpHash(ctx.ip));
+	} catch (err) {
+		ctx.status = 429;
+		ctx.body = {
+			error: {
+				message: 'Too many failed attempts to sign in. Try again later.',
+				code: 'TOO_MANY_AUTHENTICATION_FAILURES',
+				id: '22d05606-fbcf-421a-a2db-b32610dcfd1b',
+			},
+		};
+		return;
+	}
 
 	if (typeof username != 'string') {
 		ctx.status = 400;
