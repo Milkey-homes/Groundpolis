@@ -87,12 +87,12 @@ export default defineComponent({
 			});
 			if (canceled) return;
 
-			this.$store.set('widgets', [...this.$store.state.widgets, {
+			this.$store.set('widgets', [{
 				name: widget,
 				id: uuid(),
 				place: null,
 				data: {}
-			}]);
+			}, ...this.$store.state.widgets]);
 		},
 
 		removeWidget(widget) {
