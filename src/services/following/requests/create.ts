@@ -25,6 +25,12 @@ export default async function(follower: User, followee: User, requestId?: string
 	if (blocking != null) throw new Error('blocking');
 	if (blocked != null) throw new Error('blocked');
 
+	// Remove old follow requests before creating a new one.
+	await FollowRequests.delete({
+		followeeId: followee.id,
+		followerId: follower.id,
+	});
+
 	const followRequest = await FollowRequests.save({
 		id: genId(),
 		createdAt: new Date(),

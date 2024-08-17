@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as stream from 'stream';
 import * as util from 'util';
 import got, * as Got from 'got';
-import { httpAgent, httpsAgent, StatusError } from './fetch';
+import { getAgentByUrl, httpAgent, httpsAgent, StatusError } from './fetch';
 import config from '../config';
 import * as chalk from 'chalk';
 import Logger from '../services/logger';
@@ -40,8 +40,8 @@ export async function downloadUrl(url: string, path: string) {
 				request: operationTimeout,	// whole operation timeout
 			},
 			agent: {
-				http: httpAgent,
-				https: httpsAgent,
+				http: getAgentByUrl(new URL(url)),
+				https: getAgentByUrl(new URL(url)) as any,
 			},
 			http2: false,	// default
 			retry: {

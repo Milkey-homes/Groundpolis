@@ -15,22 +15,26 @@ export const meta = {
 	},
 };
 
-export default define(meta, async () => {
+export default define(meta, async (ps, user) => {
+	let metricsActive = false;
+	if (!config.hideServerInfo || (user != null && (user.isAdmin || user.isModerator))) {
+		metricsActive = true;
+	}
 	const memStats = await si.mem();
 	const fsStats = await si.fsSize();
 
 	return {
-		machine: config.hideServerInfo ? 'Unknown' : os.hostname(),
+		machine: !metricsActive ? 'Unknown' : os.hostname(),
 		cpu: {
-			model: config.hideServerInfo ? 'Unknown' : os.cpus()[0].model,
-			cores: config.hideServerInfo ? 'Unknown' : os.cpus().length
+			model: !metricsActive ? 'Unknown' : os.cpus()[0].model,
+			cores: !metricsActive ? 'Unknown' : os.cpus().length
 		},
 		mem: {
-			total: config.hideServerInfo ? 'Unknown' : memStats.total
+			total: !metricsActive ? 'Unknown' : memStats.total
 		},
 		fs: {
-			total: config.hideServerInfo ? 'Unknown' : fsStats[0].size,
-			used: config.hideServerInfo ? 'Unknown' : fsStats[0].used,
+			total: !metricsActive ? 'Unknown' : fsStats[0].size,
+			used: !metricsActive ? 'Unknown' : fsStats[0].used,
 		},
 	};
 });

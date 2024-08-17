@@ -47,18 +47,34 @@
 				<pre><code>{{ JSON.stringify(info, null, 2) }}</code></pre>
 			</details>
 		</div>
+		<div class="_section" v-if="user.host == null && ($i.isAdmin || $i.isModerator)">
+			<FormPagination :pagination="pagination">
+				<template #label>{{ $ts.signinHistory }}</template>
+				<template #default="{items}">
+					<div class="_formPanel timnmucd" v-for="item in items" :key="item.id">
+						<header>
+							<Fa class="icon succ" :icon="faCheck" v-if="item.success"/>
+							<Fa class="icon fail" :icon="faTimesCircle" v-else/>
+							<code class="ip _monospace">{{ item.ip }}</code>
+							<MkTime :time="item.createdAt" class="time"/>
+						</header>
+					</div>
+				</template>
+			</FormPagination>
+		</div>
 	</div>
 </XModalWindow>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { faTimes, faBookmark, faKey, faSync, faMicrophoneSlash, faExternalLinkSquareAlt, faCrown, } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faBookmark, faKey, faSync, faMicrophoneSlash, faExternalLinkSquareAlt, faCrown, faCheck, faTimesCircle, } from '@fortawesome/free-solid-svg-icons';
 import { faSnowflake, faTrashAlt, faBookmark as farBookmark  } from '@fortawesome/free-regular-svg-icons';
 import MkButton from '@/components/ui/button.vue';
 import MkSwitch from '@/components/ui/switch.vue';
 import GpVerified from '@/components/verified.vue';
 import XModalWindow from '@/components/ui/modal-window.vue';
+import FormPagination from '@/components/form/pagination.vue';
 import Progress from '@/scripts/loading';
 import { acct, userPage } from '../../filters/user';
 import * as os from '@/os';
@@ -70,6 +86,7 @@ export default defineComponent({
 		MkSwitch,
 		GpVerified,
 		XModalWindow,
+		FormPagination,
 	},
 
 	props: {
@@ -89,7 +106,14 @@ export default defineComponent({
 			suspended: false,
 			verified: false,
 			premium: false,
-			faTimes, faBookmark, farBookmark, faKey, faSync, faMicrophoneSlash, faSnowflake, faTrashAlt, faExternalLinkSquareAlt, faCrown,
+			faTimes, faBookmark, farBookmark, faKey, faSync, faMicrophoneSlash, faSnowflake, faTrashAlt, faExternalLinkSquareAlt, faCrown, faCheck, faTimesCircle,
+			pagination: {
+				endpoint: 'admin/show-user-signins',
+				limit: 5,
+				params: () => ({
+					userId: this.user.id,
+				}),
+			},
 		};
 	},
 
@@ -290,6 +314,41 @@ export default defineComponent({
 
 		> .rawdata {
 			overflow: auto;
+		}
+	}
+}
+.timnmucd {
+	padding: 16px;
+
+	> header {
+		display: flex;
+		align-items: center;
+
+		> .icon {
+			width: 1em;
+			margin-right: 0.75em;
+
+			&.succ {
+				color: var(--success);
+			}
+
+			&.fail {
+				color: var(--error);
+			}
+		}
+
+		> .ip {
+			flex: 1;
+			min-width: 0;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			margin-right: 12px;
+		}
+
+		> .time {
+			margin-left: auto;
+			opacity: 0.7;
 		}
 	}
 }

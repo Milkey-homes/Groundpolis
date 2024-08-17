@@ -1,10 +1,12 @@
+import * as Koa from 'koa';
 import { performance } from 'perf_hooks';
-import limiter from './limiter';
+import { limiter } from './limiter';
 import { User } from '../../models/entities/user';
-import endpoints from './endpoints';
+import endpoints, { IEndpointMeta } from './endpoints';
 import { ApiError } from './error';
 import { apiLogger } from './logger';
 import { AccessToken } from '../../models/entities/access-token';
+import { getIpHash } from '../../misc/get-ip-hash';
 
 const accessDenied = {
 	message: 'Access denied.',
@@ -12,8 +14,9 @@ const accessDenied = {
 	id: '56f35758-7dd5-468b-8439-5d6fb8ec9b8e'
 };
 
-export default async (endpoint: string, user: User | null | undefined, token: AccessToken | null | undefined, data: any, file?: any) => {
+export default async (endpoint: string, user: User | null | undefined, token: AccessToken | null | undefined, data: any, ctx?: Koa.Context) => {
 	const isSecure = user != null && token == null;
+	const isModerator = user != null && (user.isModerator || user.isAdmin);
 
 	const ep = endpoints.find(e => e.name === endpoint);
 
@@ -28,6 +31,32 @@ export default async (endpoint: string, user: User | null | undefined, token: Ac
 
 	if (ep.meta.secure && !isSecure) {
 		throw new ApiError(accessDenied);
+	}
+
+	if (ep.meta.limit && !isModerator) {
+		// koa will automatically load the `X-Forwarded-For` header if `proxy: true` is configured in the app.
+		let limitActor: string;
+		if (user) {
+			limitActor = user.id;
+		} else {
+			limitActor = getIpHash(ctx!.ip);
+		}
+
+		const limit = Object.assign({}, ep.meta.limit);
+
+		if (!limit.key) {
+			limit.key = ep.name;
+		}
+
+		// Rate limit
+		await limiter(limit as IEndpointMeta['limit'] & { key: NonNullable<string> }, limitActor).catch(e => {
+			throw new ApiError({
+				message: 'Rate limit exceeded. Please try again later.',
+				code: 'RATE_LIMIT_EXCEEDED',
+				id: 'd5826d14-3982-4d2e-8011-b9e9f02499ef',
+				httpStatusCode: 429,
+			});
+		});
 	}
 
 	if (ep.meta.requireCredential && user == null) {
@@ -47,7 +76,7 @@ export default async (endpoint: string, user: User | null | undefined, token: Ac
 		throw new ApiError(accessDenied, { reason: 'You are not the admin.' });
 	}
 
-	if (ep.meta.requireModerator && !user!.isAdmin && !user!.isModerator) {
+	if (ep.meta.requireModerator && !isModerator) {
 		throw new ApiError(accessDenied, { reason: 'You are not a moderator.' });
 	}
 
@@ -67,21 +96,30 @@ export default async (endpoint: string, user: User | null | undefined, token: Ac
 		throw new ApiError(accessDenied, { reason: 'Apps cannot use moderator privileges.' });
 	}
 
-	if (ep.meta.requireCredential && ep.meta.limit && !user!.isAdmin && !user!.isModerator) {
-		// Rate limit
-		await limiter(ep, user!).catch(e => {
-			throw new ApiError({
-				message: 'Rate limit exceeded. Please try again later.',
-				code: 'RATE_LIMIT_EXCEEDED',
-				id: 'd5826d14-3982-4d2e-8011-b9e9f02499ef',
-				httpStatusCode: 429
-			});
-		});
+	// Cast non JSON input
+	if (ep.meta.requireFile && ep.meta.params) {
+		for (const k of Object.keys(ep.meta.params)) {
+			const param = ep.meta.params[k];
+			if (['Boolean', 'Number'].includes(param.validator.name) && typeof data[k] === 'string') {
+				try {
+					data[k] = JSON.parse(data[k]);
+				} catch (e) {
+					throw	new ApiError({
+						message: 'Invalid param.',
+						code: 'INVALID_PARAM',
+						id: '0b5f1631-7c1a-41a6-b399-cce335f34d85',
+					}, {
+						param: k,
+						reason: `cannot cast to ${param.validator.name}`,
+					})
+				}
+			}
+		}
 	}
 
 	// API invoking
 	const before = performance.now();
-	return await ep.exec(data, user, token, file).catch((e: Error) => {
+	return await ep.exec(data, user, token, ctx?.file).catch((e: Error) => {
 		if (e instanceof ApiError) {
 			throw e;
 		} else {

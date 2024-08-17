@@ -879,6 +879,7 @@ invitationRequiredToRegister: "This server is currently invitation only. Only th
 themeColor: "Theme Color"
 preferTickerSoftwareColor: "Prefer Software Color on instance ticker"
 typeToConfirm: "Please enter {x} to confirm"
+rateLimitExceeded: "Rate limit exceeded"
 
 _template:
   edit: "Edit Template..."

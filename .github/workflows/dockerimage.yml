@@ -6,9 +6,41 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:12.2-alpine
+        ports:
+          - 54355:5432
+        env:
+          POSTGRES_DB: test-misskey
+          POSTGRES_HOST_AUTH_METHOD: trust
+      redis:
+        image: redis:4.0-alpine
+        ports:
+          - 56312:6379
+
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name
     - run: docker image ls my-image-name
     - run: docker history my-image-name
+    - name: Copy Configure
+      run: cp test/test.yml .config/default.yml
+    - name: Start Docker container
+      run: |
+        docker run -d --net=host -v ./.config:/misskey/.config:ro --name my-container my-image-name
+        sleep 60
+    - name: Check Docker container logs
+      run: docker logs my-container
+    - name: Test HTTP request to container
+      run: |
+        response=$(curl --retry 10 -X POST -s -o /dev/null -w "%{http_code}" http://localhost:61812/api/notes/local-timeline)
+        if [ $response -eq 200 ]; then
+          echo "HTTP request successful. Status code: $response"
+        else
+          echo "HTTP request failed with status code: $response"
+          exit 1
+        fi
+    - name: Stop Docker container
+      run: docker stop my-container

@@ -29,7 +29,7 @@ export default function() {
 		const stats = {
 			cpu: roundCpu(cpu),
 			mem: {
-				used: round(memStats.used),
+				used: round(memStats.used - memStats.buffers - memStats.cached),
 				active: round(memStats.active),
 			},
 			net: {
@@ -45,8 +45,6 @@ export default function() {
 		log.unshift(stats);
 		if (log.length > 200) log.pop();
 	}
-
-	if (config.hideServerInfo) return;
 
 	tick();
 
@@ -78,5 +76,5 @@ async function net() {
 // FS STAT
 async function fs() {
 	const data = await si.disksIO().catch(() => ({ rIO_sec: 0, wIO_sec: 0 }));
-	return data;
+	return data || { rIO_sec: 0, wIO_sec: 0 };
 }
