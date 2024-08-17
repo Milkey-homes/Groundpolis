@@ -51,7 +51,7 @@
 		</FormGroup>
 		<FormGroup>
 			<template #label>{{ $ts._aboutMisskey.contributors }}</template>
-			<FormLink to="https://github.com/Xeltica" external>@Xeltica</FormLink>
+			<FormLink to="https://github.com/EbiseLutica" external>@EbiseLutica</FormLink>
 			<FormLink to="https://github.com/m-hayabusa" external>@m-hayabusa</FormLink>
 			<FormLink to="https://github.com/remitocat" external>@remitocat</FormLink>
 			<FormLink to="https://github.com/mei23" external>@mei23</FormLink>
