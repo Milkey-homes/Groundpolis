@@ -16,7 +16,6 @@ News
 --------
 Check the latest information on the official account.
 - [@Milkey221B@milkey.homes](https://milkey.homes/@Milkey221B)
-- [@dev@groundpolis.app](https://groundpolis.app/@dev)
 
 Documentation
 ---------
