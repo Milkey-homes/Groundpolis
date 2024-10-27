@@ -58,7 +58,7 @@ describe('Note', () => {
 		assert.deepStrictEqual(res.body.createdNote.fileIds, [file.id]);
 	}));
 
-	it('他人のファイルは無視', async(async () => {
+	it('他人のファイルは怒られる', async(async () => {
 		const file = await uploadFile(bob);
 
 		const res = await request('/notes/create', {
@@ -66,20 +66,16 @@ describe('Note', () => {
 			fileIds: [file.id]
 		}, alice);
 
-		assert.strictEqual(res.status, 200);
-		assert.strictEqual(typeof res.body === 'object' && !Array.isArray(res.body), true);
-		assert.deepStrictEqual(res.body.createdNote.fileIds, []);
+		assert.strictEqual(res.status, 400);
 	}));
 
-	it('存在しないファイルは無視', async(async () => {
+	it('存在しないファイルは怒られる', async(async () => {
 		const res = await request('/notes/create', {
 			text: 'test',
 			fileIds: ['000000000000000000000000']
 		}, alice);
 
-		assert.strictEqual(res.status, 200);
-		assert.strictEqual(typeof res.body === 'object' && !Array.isArray(res.body), true);
-		assert.deepStrictEqual(res.body.createdNote.fileIds, []);
+		assert.strictEqual(res.status, 400);
 	}));
 
 	it('不正なファイルIDで怒られる', async(async () => {
