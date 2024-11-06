@@ -13,7 +13,7 @@ import { InboxJobData } from '..';
 import DbResolver from '../../remote/activitypub/db-resolver';
 import { resolvePerson } from '../../remote/activitypub/models/person';
 import { LdSignature } from '../../remote/activitypub/misc/ld-signature';
-import { verifySignature } from '../../remote/activitypub/check-fetch.js';
+import { verifySignature } from '../../remote/activitypub/check-fetch';
 import { StatusError } from '../../misc/fetch';
 
 const logger = new Logger('inbox');
