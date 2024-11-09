@@ -11,6 +11,19 @@ import { FILE_TYPE_BROWSERSAFE } from '../../const';
 export async function proxyMedia(ctx: Koa.Context) {
 	const url = 'url' in ctx.query ? ctx.query.url : 'https://' + ctx.params.url;
 
+	if (typeof url !== 'string') {
+		ctx.status = 400;
+		return;
+	}
+
+	if (!ctx.headers['user-agent']) {
+		ctx.status = 400;
+		return;
+	} else if (ctx.headers['user-agent'].toLowerCase().indexOf('misskey/') !== -1) {
+		ctx.status = 403;
+		return;
+	}
+
 	// Create temp file
 	const [path, cleanup] = await createTemp();
 
