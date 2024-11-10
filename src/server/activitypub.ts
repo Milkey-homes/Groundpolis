@@ -262,6 +262,16 @@ async function userInfo(ctx: Router.RouterContext, user: User | undefined) {
 		return;
 	}
 
+	// リモートだったらリダイレクト
+	if (user.host != null) {
+		if (user.uri == null || isSelfHost(user.host)) {
+			ctx.status = 500;
+			return;
+		}
+		ctx.redirect(user.uri);
+		return;
+	}
+
 	ctx.body = renderActivity(await renderPerson(user as ILocalUser));
 	ctx.set('Cache-Control', 'public, max-age=180');
 	setResponseType(ctx);
