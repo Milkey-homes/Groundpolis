@@ -124,6 +124,8 @@ export default async (job: Bull.Job<InboxJobData>): Promise<string> => {
 		if (signerHost !== activityIdHost) {
 			return `skip: signerHost(${signerHost}) !== activity.id host(${activityIdHost}`;
 		}
+	} else {
+		return `skip: activity id is not a string`;
 	}
 
 	// Update stats
