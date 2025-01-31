@@ -7,6 +7,7 @@ import { Notes, Users, UserPublickeys, MessagingMessages } from '../../models';
 import { IObject, getApId } from './type';
 import { resolvePerson } from './models/person';
 import { ensure } from '../../prelude/ensure';
+import { extractDbHost, toPuny } from '../../misc/convert-host';
 import escapeRegexp = require('escape-regexp');
 
 export type UriParseResult = {
@@ -32,12 +33,14 @@ export type AuthUser = {
 
 export function parseUri(value: string) : UriParseResult {
 	const uri = getApId(value);
+	const parsed = new URL(uri);
 
-	// the host part of a URL is case insensitive, so use the 'i' flag.
-	const localRegex = new RegExp('^' + escapeRegexp(config.url) + '/(\\w+)/(\\w+)(?:\/(.+))?', 'i');
-	const matchLocal = uri.match(localRegex);
-
-	if (matchLocal) {
+	if (toPuny(parsed.host) === toPuny(config.host)) {
+		const localRegex = new RegExp(`^.*?/(\\w+)/(\\w+)(?:/(.+))?`);
+		const matchLocal = uri.match(localRegex);
+		if (matchLocal == null) {
+			throw new Error(`Failed to parse local URI: ${uri}`);
+		}
 		return {
 			local: true,
 			type: matchLocal[1],
