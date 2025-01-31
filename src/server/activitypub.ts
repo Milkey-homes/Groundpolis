@@ -44,7 +44,7 @@ function inbox(ctx: Router.RouterContext) {
 	let signature: httpSignature.IParsedSignature;
 
 	try {
-		signature = httpSignature.parseRequest(ctx.req, { headers: ['(request-target)', 'digest', 'host', 'date'] });
+		signature = httpSignature.parseRequest(ctx.req, { headers: ['(request-target)', 'digest', 'host', 'date'], authorizationHeaderName: 'signature' });
 	} catch (e) {
 		serverLogger.warn(`inbox: signature parse error: ${inspect(e)}`);
 		ctx.status = 401;

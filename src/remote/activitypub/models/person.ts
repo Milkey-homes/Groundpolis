@@ -20,7 +20,7 @@ import { genId } from '../../../misc/gen-id';
 import { instanceChart, usersChart } from '../../../services/chart';
 import { UserPublickey } from '../../../models/entities/user-publickey';
 import { isDuplicateKeyValueError } from '../../../misc/is-duplicate-key-value-error';
-import { toPuny, isSelfOrigin } from '../../../misc/convert-host';
+import { extractDbHost, toPuny, isSelfOrigin } from '../../../misc/convert-host';
 import { UserProfile } from '../../../models/entities/user-profile';
 import { validActor } from '../../../remote/activitypub/type';
 import { getConnection } from 'typeorm';
@@ -39,7 +39,7 @@ const logger = apLogger;
  * @param uri Fetch target URI
  */
 function validatePerson(x: any, uri: string) {
-	const expectHost = toPuny(new URL(uri).hostname);
+	const expectHost = extractDbHost(uri);
 
 	if (x == null) {
 		return new Error('invalid person: object is null');
@@ -57,6 +57,40 @@ function validatePerson(x: any, uri: string) {
 		return new Error('invalid person: inbox is not a string');
 	}
 
+	if (!(typeof x.id === "string" && x.id.length > 0)) {
+		throw new Error("invalid Actor: wrong id");
+	}
+
+	if (!(typeof x.inbox === "string" && x.inbox.length > 0 && extractDbHost(x.inbox) === expectHost)) {
+		throw new Error("invalid Actor: wrong inbox");
+	}
+
+	if (!(typeof x.outbox === "string" && x.outbox.length > 0 && extractDbHost(getApId(x.outbox)) === expectHost)) {
+		throw new Error("invalid Actor: wrong outbox");
+	}
+
+	const sharedInboxObject = x.sharedInbox ?? (x.endpoints ? x.endpoints.sharedInbox : undefined);
+	if (sharedInboxObject != null) {
+		const sharedInbox = getApId(sharedInboxObject);
+		if (!(typeof sharedInbox === "string" && sharedInbox.length > 0 && extractDbHost(sharedInbox) === expectHost)) {
+			throw new Error("invalid Actor: wrong shared inbox");
+		}
+	}
+
+	if (x.followers != null) {
+		x.followers = getApId(x.followers);
+		if (!(typeof x.followers === "string" && x.followers.length > 0 && extractDbHost(x.followers) === expectHost)) {
+			throw new Error("invalid Actor: wrong followers");
+		}
+	}
+
+	if (x.following != null) {
+		x.following = getApId(x.following);
+		if (!(typeof x.following === "string" && x.following.length > 0 && extractDbHost(x.following) === expectHost)) {
+			throw new Error("invalid Actor: wrong following");
+		}
+	}
+
 	if (!Users.validateRemoteUsername.ok(x.preferredUsername)) {
 		return new Error('invalid person: invalid username');
 	}
@@ -71,7 +105,7 @@ function validatePerson(x: any, uri: string) {
 		return new Error('invalid person: id is not a string');
 	}
 
-	const idHost = toPuny(new URL(x.id).hostname);
+	const idHost = toPuny(new URL(x.id).host);
 	if (idHost !== expectHost) {
 		return new Error('invalid person: id has different host');
 	}
@@ -80,7 +114,7 @@ function validatePerson(x: any, uri: string) {
 		return new Error('invalid person: publicKey.id is not a string');
 	}
 
-	const publicKeyIdHost = toPuny(new URL(x.publicKey.id).hostname);
+	const publicKeyIdHost = toPuny(new URL(x.publicKey.id).host);
 	if (publicKeyIdHost !== expectHost) {
 		return new Error('invalid person: publicKey.id has different host');
 	}
@@ -148,6 +182,19 @@ export async function createPerson(uri: string, resolver?: Resolver): Promise<Us
 	const bday = person['vcard:bday']?.match(/^\d{4}-\d{2}-\d{2}/);
 
 	const { sex } = parseGender(person['vcard:gender']);
+
+	let url = getOneApHrefNullable(person.url);
+	const urlUrl = url != null ? new URL(url) : null;
+	const uriUrl = new URL(uri);
+
+	if (urlUrl != null && urlUrl.protocol != 'https:') {
+		throw new Error(`unexpected schema of person url: ${url}`);
+	}
+	
+	if (urlUrl != null && urlUrl.host != uriUrl.host) {
+		logger.debug("Person url host doesn't match person uri host, clearing variable");
+		url = undefined;
+	}
 
 	// Create user
 	let user: IRemoteUser;

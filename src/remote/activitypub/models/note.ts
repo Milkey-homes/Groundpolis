@@ -88,12 +88,57 @@ export async function createNote(value: string | IObject, resolver?: Resolver, s
 
 	const note: IPost = object;
 
+	if (note.id == null) {
+		throw new Error('Note must have an id');
+	}
+	const idUrl = new URL(note.id);
+	if (idUrl.protocol != 'https:') {
+		throw new Error(`unexpected schema of note.id: ${note.id}`);
+	}
+	let url = getOneApHrefNullable(note.url);
+	const urlUrl = url != null ? new URL(url) : null;
+	if (urlUrl != null && urlUrl.protocol != 'https:') {
+		throw new Error(`unexpected schema of note url: ${url}`);
+	}
+
 	logger.debug(`Note fetched: ${JSON.stringify(note, null, 2)}`);
 
 	logger.info(`Creating the Note: ${note.id}`);
 
+	// Skip if note is made before 2007 (1yr before Fedi was created)
+	// OR skip if note is made 3 days in advance
+	if (note.published) {
+		const DateChecker = new Date(note.published);
+		const FutureCheck = new Date();
+		FutureCheck.setDate(FutureCheck.getDate() + 3); // Allow some wiggle room for misconfigured hosts
+		if (DateChecker.getFullYear() < 2007) {
+			logger.warn(
+				"Note somehow made before Activitypub was created; discarding",
+			);
+			return null;
+		}
+		if (DateChecker > FutureCheck) {
+			logger.warn("Note somehow made after today; discarding");
+			return null;
+		}
+	}
+
 	// 投稿者をフェッチ
 	const actor = await resolvePerson(getOneApId(note.attributedTo), resolver) as IRemoteUser;
+
+	if (actor.uri == null) {
+		logger.warn('Note actor uri is null, discarding');
+		return null;
+	}
+	const actorUri = new URL(actor.uri);
+	if (idUrl.host != actorUri.host) {
+		logger.warn("Note id host doesn't match actor host, discarding");
+		return null;
+	}
+	if (urlUrl != null && urlUrl.host != actorUri.host) {
+		logger.debug("Note url host doesn't match actor host, clearing variable");
+		url = undefined;
+	}
 
 	// 投稿者が凍結されていたらスキップ
 	if (actor.isSuspended) {

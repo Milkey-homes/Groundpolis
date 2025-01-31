@@ -20,15 +20,8 @@ import { toArray } from '../../../prelude/array';
 
 export async function performActivity(actor: IRemoteUser, activity: IObject) {
 	if (isCollectionOrOrderedCollection(activity)) {
-		const resolver = new Resolver();
-		for (const item of toArray(isCollection(activity) ? activity.items : activity.orderedItems)) {
-			const act = await resolver.resolve(item);
-			try {
-				await performOneActivity(actor, act);
-			} catch (e) {
-				apLogger.error(e);
-			}
-		}
+		apLogger.debug(`Refusing to ingest collection as activity`);
+		return;
 	} else {
 		await performOneActivity(actor, activity);
 	}
