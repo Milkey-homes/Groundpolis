@@ -19,7 +19,7 @@ jobs:
         id: meta
         with:
           images: ghcr.io/sakura-tel/milkey
-          tags: type=semver,pattern={{ raw }}
+          tags: ${{ github.ref_name }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
