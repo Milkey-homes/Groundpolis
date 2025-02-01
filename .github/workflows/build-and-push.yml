@@ -19,6 +19,8 @@ jobs:
         id: meta
         with:
           images: ghcr.io/sakura-tel/milkey
+          flavor: |
+            latest=true
           tags: ${{ github.ref_name }}
 
       - name: Login to GitHub Container Registry
