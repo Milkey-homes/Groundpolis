@@ -18,7 +18,7 @@ WORKDIR /misskey
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
- ffmpeg tini curl libjemalloc-dev libjemalloc2 \
+ ffmpeg tini curl wget libjemalloc-dev libjemalloc2 \
  && ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so \
  && apt-get -y clean \
  && rm -rf /var/lib/apt/lists/*
