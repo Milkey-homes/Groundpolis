@@ -79,6 +79,9 @@ async function fetchAny(uri: string) {
 		}
 	}
 
+	// local object, not found in db? fail
+	if (isSelfOrigin(uri)) return null;
+
 	// ブロックしてたら中断
 	const meta = await fetchMeta();
 	if (meta.blockedHosts.includes(extractDbHost(uri))) return null;

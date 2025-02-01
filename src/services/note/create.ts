@@ -422,7 +422,7 @@ export default async (user: User, data: Option, silent = false) => new Promise<N
 		});
 
 		//#region AP deliver
-		if (Users.isLocalUser(user)) {
+		if (!data.localOnly && Users.isLocalUser(user)) {
 			(async () => {
 				const noteActivity = await renderNoteOrRenoteActivity(data, note);
 

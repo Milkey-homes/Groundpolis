@@ -21,6 +21,8 @@ export default async function(resolver: Resolver, actor: IRemoteUser, note: IObj
 			if (extractDbHost(actor.uri) !== extractDbHost(note.id)) {
 				return `skip: host in actor.uri !== note.id`;
 			}
+		}	else {
+			return `skip: note.id is not a string`;
 		}
 	}
 

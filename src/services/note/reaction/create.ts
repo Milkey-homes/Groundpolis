@@ -11,8 +11,12 @@ import { perUserReactionsChart } from '../../chart';
 import { genId } from '../../../misc/gen-id';
 import { createNotification } from '../../create-notification';
 import deleteReaction from './delete';
+import { IdentifiableError } from '../../../misc/identifiable-error';
 
 export default async (user: User, note: Note, reaction?: string, isDislike = false) => {
+	if (note.renoteId && note.text == null && note.poll == null && note.fileIds.length == 0) {
+		throw new IdentifiableError('12c35529-3c79-4327-b1cc-e2cf63a71925');
+	}
 	const dbReaction = await toDbReaction(reaction, user.host);
 	reaction = dbReaction ? dbReaction : await getFallbackReaction();
 	const isFallback = !dbReaction;
@@ -38,7 +42,7 @@ export default async (user: User, note: Note, reaction?: string, isDislike = fal
 		createdAt: new Date(),
 		noteId: note.id,
 		userId: user.id,
-		reaction, 
+		reaction,
 		dislike: isDislike,
 	});
 

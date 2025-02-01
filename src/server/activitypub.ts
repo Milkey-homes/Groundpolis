@@ -44,7 +44,7 @@ function inbox(ctx: Router.RouterContext) {
 	let signature: httpSignature.IParsedSignature;
 
 	try {
-		signature = httpSignature.parseRequest(ctx.req, { headers: ['(request-target)', 'digest', 'host', 'date'] });
+		signature = httpSignature.parseRequest(ctx.req, { headers: ['(request-target)', 'digest', 'host', 'date'], authorizationHeaderName: 'signature' });
 	} catch (e) {
 		serverLogger.warn(`inbox: signature parse error: ${inspect(e)}`);
 		ctx.status = 401;
@@ -259,6 +259,16 @@ router.get('/users/:user/publickey', async ctx => {
 async function userInfo(ctx: Router.RouterContext, user: User | undefined) {
 	if (user == null) {
 		ctx.status = 404;
+		return;
+	}
+
+	// リモートだったらリダイレクト
+	if (user.host != null) {
+		if (user.uri == null || isSelfHost(user.host)) {
+			ctx.status = 500;
+			return;
+		}
+		ctx.redirect(user.uri);
 		return;
 	}
 

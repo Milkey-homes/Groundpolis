@@ -13,7 +13,7 @@ import { InboxJobData } from '..';
 import DbResolver from '../../remote/activitypub/db-resolver';
 import { resolvePerson } from '../../remote/activitypub/models/person';
 import { LdSignature } from '../../remote/activitypub/misc/ld-signature';
-import { verifySignature } from '../../remote/activitypub/check-fetch.js';
+import { verifySignature } from '../../remote/activitypub/check-fetch';
 import { StatusError } from '../../misc/fetch';
 
 const logger = new Logger('inbox');
@@ -118,12 +118,13 @@ export default async (job: Bull.Job<InboxJobData>): Promise<string> => {
 	}
 
 	// activity.idがあればホストが署名者のホストであることを確認する
-	if (typeof activity.id === 'string') {
-		const signerHost = extractDbHost(authUser.user.uri!);
-		const activityIdHost = extractDbHost(activity.id);
-		if (signerHost !== activityIdHost) {
-			return `skip: signerHost(${signerHost}) !== activity.id host(${activityIdHost}`;
-		}
+	if (typeof activity.id !== "string") {
+		return 'skip: activity.id is not a string';
+	}
+	const signerHost = extractDbHost(authUser.user.uri!);
+	const activityIdHost = extractDbHost(activity.id);
+	if (signerHost !== activityIdHost) {
+		return `skip: signerHost(${signerHost}) !== activity.id host(${activityIdHost}`;
 	}
 
 	// Update stats

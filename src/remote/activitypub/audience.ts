@@ -19,6 +19,8 @@ export async function parseAudience(actor: IRemoteUser, to?: ApObject, cc?: ApOb
 
 	const others = unique(concat([toGroups.other, ccGroups.other]));
 
+	if (resolver == null) resolver = new Resolver();
+
 	const limit = promiseLimit<User | null>(2);
 	const mentionedUsers = (await Promise.all(
 		others.map(id => limit(() => resolvePerson(id, resolver).catch(() => null)))

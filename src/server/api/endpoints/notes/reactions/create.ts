@@ -51,6 +51,12 @@ export const meta = {
 			message: 'You are already reacting to that note.',
 			code: 'ALREADY_REACTED',
 			id: '71efcf98-86d6-4e2b-b2ad-9d032369366b'
+		},
+
+		cannotReactToRenote: {
+			message: 'You cannot react to Renote.',
+			code: 'CANNOT_REACT_TO_RENOTE',
+			id: 'eaccdc08-ddef-43fe-908f-d108faad57f5',
 		}
 	}
 };
@@ -62,6 +68,7 @@ export default define(meta, async (ps, user) => {
 	});
 	await createReaction(user, note, ps.reaction, !!ps.dislike).catch(e => {
 		if (e.id === '51c42bb4-931a-456b-bff7-e5a8a70dd298') throw new ApiError(meta.errors.alreadyReacted);
+		if (e.id === '12c35529-3c79-4327-b1cc-e2cf63a71925') throw new ApiError(meta.errors.cannotReactToRenote);
 		throw e;
 	});
 	return;
